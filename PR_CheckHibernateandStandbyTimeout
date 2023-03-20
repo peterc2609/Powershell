@@ -1,0 +1,15 @@
+$hibernate = (powercfg /a | Select-String "Hibernate") -notmatch "unavailable"
+$standbyTimeoutAc = (powercfg /q | Select-String "AC\s+standby\stimeout:") -match "\d+"
+
+if (-not $hibernate -and $standbyTimeoutAc) {
+    $standbyTimeoutValue = [int]($matches[0])
+    if ($standbyTimeoutValue -eq 0) {
+        Write-Output "Hibernation is disabled and standby timeout on AC is set to 0."
+        # Conditions met, exit code 0
+        exit 0
+    }
+}
+
+Write-Output "Hibernation is not disabled or standby timeout on AC is not set to 0."
+# Conditions not met, exit code 1
+exit 1
