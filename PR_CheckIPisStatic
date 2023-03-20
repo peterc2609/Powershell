@@ -1,12 +1,17 @@
+# Get network adapter with active connection
 $adapter = Get-NetAdapter | ? { $_.Status -eq "Up" -and $_.LinkSpeed -ne "0 bps" }
 $index = $adapter.ifIndex
 
+# Get IP configuration of the adapter
 $ipProperties = Get-NetIPConfiguration -InterfaceIndex $index
 
+# Check if IP address is set to static
 if ($ipProperties.AddressOrigin -eq "Manual") {
+    Write-Output "Static IP detected."
     # Static IP, exit code 0
     exit 0
 } else {
+    Write-Output "Static IP not detected."
     # Not static IP, exit code 1
     exit 1
 }
