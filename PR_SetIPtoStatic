@@ -1,14 +1,24 @@
+# Get network adapter with active connection
 $adapter = Get-NetAdapter | ? { $_.Status -eq "Up" -and $_.LinkSpeed -ne "0 bps" }
 $index = $adapter.ifIndex
 
+# Get IP configuration of the adapter
 $ipProperties = Get-NetIPConfiguration -InterfaceIndex $index
 $ipAddress = $ipProperties.IPv4Address.IPAddress
 $subnetMask = $ipProperties.IPv4Address.PrefixLength
 $defaultGateway = $ipProperties.IPv4DefaultGateway.NextHop
 $dnsServers = "1.1.1.3", "1.0.0.3"
 
+Write-Output "Configuring static IP address."
+
 # Set IP address to static and apply the IP address, subnet mask, and default gateway
 New-NetIPAddress -InterfaceIndex $index -IPAddress $ipAddress -PrefixLength $subnetMask -DefaultGateway $defaultGateway -Force
 
+Write-Output "Static IP address configured."
+
+Write-Output "Setting DNS addresses."
+
 # Set DNS addresses
 Set-DnsClientServerAddress -InterfaceIndex $index -ServerAddresses $dnsServers
+
+Write-Output "DNS addresses set."
