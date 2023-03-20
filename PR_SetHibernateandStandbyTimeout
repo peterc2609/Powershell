@@ -1,0 +1,7 @@
+Write-Output "Disabling Hibernation."
+powercfg /h off
+
+Write-Output "Setting Standby Timeout on AC to 0."
+powercfg /x standby-timeout-ac 0
+
+Write-Output "Hibernation disabled and Standby Timeout on AC set to 0."
