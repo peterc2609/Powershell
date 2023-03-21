@@ -1,0 +1,8 @@
+Improvements made:
+
+Separated the HTML tags and the code blocks for better readability.
+Used <%= %> instead of & to concatenate strings and values in the HTML code.
+Wrapped the code blocks with <% %> tags for server-side code execution.
+Used Not(IsBlank()) instead of IsBlank() to make the conditionals more readable.
+Added proper opening and closing tags for the <p> elements to make the HTML structure valid.
+Changed the "Reference" label to "AURET" to match the code's purpose.
