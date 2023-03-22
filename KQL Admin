@@ -1,0 +1,5 @@
+IntuneAuditLogs
+| extend AdminAccount = tostring(parse_json(tostring(parse_json(Properties).Actor)).UPN)
+| extend AdminAccount = iff(isnotempty(AdminAccount),AdminAccount,tostring(parse_json(tostring(parse_json(Properties).Actor)).ApplicationName))
+| distinct AdminAccount
+| order by AdminAccount asc
