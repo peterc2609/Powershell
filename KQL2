@@ -1,0 +1,7 @@
+IntuneAuditLogs
+| extend AdminAccount = tostring(parse_json(tostring(parse_json(Properties).Actor)).UPN)
+| extend AdminAccount = iff(isnotempty(AdminAccount),AdminAccount,tostring(parse_json(tostring(parse_json(Properties).Actor)).ApplicationName))
+| where AdminAccount == ("{Identity}")
+| where tostring(parse_json(Properties).Operation) != "Client certificate"
+| distinct tostring(parse_json(Properties).Category)
+| extend PropertyDescription = iif(Properties_Category == '1',"Enrollment",iif(Properties_Category == '4',"Device Actions",iif(Properties_Category == '5',"Mobile App",iif(Properties_Category == '3' or Properties_Category == '10',"Device Configuration",iif(Properties_Category == '12',"Device Management",iif(Properties_Category == '16',"Assignment Filters",iif(Properties_Category == '2',"Compliance Policy","")))))))
