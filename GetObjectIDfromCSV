@@ -1,0 +1,24 @@
+# Authenticate with Microsoft Graph
+Connect-MSGraph
+
+# Import hostnames from CSV
+$csvFile = "path/to/your/hostnames.csv"
+$hostnames = Import-Csv -Path $csvFile
+
+# Initialize an empty hashtable to store the hostname-objectID pairs
+$hostnameObjectIDs = @{}
+
+# Iterate through each hostname and get the corresponding objectID
+foreach ($hostnameEntry in $hostnames) {
+    $hostname = $hostnameEntry.Hostname
+    $device = Get-IntuneManagedDevice -Filter "contains(deviceName, '$hostname')"
+    if ($device) {
+        $hostnameObjectIDs[$hostname] = $device.id
+        Write-Host "Hostname: $hostname, ObjectID: $($device.id)"
+    } else {
+        Write-Host "Hostname: $hostname not found in Intune"
+    }
+}
+
+# Disconnect from Microsoft Graph
+Disconnect-MSGraph
