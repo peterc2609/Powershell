@@ -1,0 +1,5 @@
+$RegKey = (@(Get-ChildItem "HKLM:\SOFTWARE\Microsoft\Enrollments" -recurse | Where-Object {$_.PSChildName -like 'FirstSync'}))
+$RegPath = $($RegKey.name).TrimStart("HKEY_LOCAL_MACHINE")
+$data = Get-ItemProperty -path HKLM:$RegPath
+$Int64Value = [System.BitConverter]::ToInt64($data.Timestamp, 0)
+$TimeStamp = [DateTime]::FromFileTime($Int64Value)
