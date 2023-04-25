@@ -1,8 +1,14 @@
-$filePath = "$env:ProgramData\Test.tag"
+$folderPath = "$env:ProgramData\Microsoft\IntuneApps"
+$filePath = "$folderPath\Test.tag"
+
+if (-Not (Test-Path -Path $folderPath)) {
+    New-Item -ItemType Directory -Path $folderPath -Force
+    Write-Host "Folder 'IntuneApps' created in ProgramData\Microsoft directory."
+}
 
 if (-Not (Test-Path -Path $filePath)) {
     New-Item -ItemType File -Path $filePath -Force
-    Write-Host "File 'Test.tag' created in ProgramData folder."
+    Write-Host "File 'Test.tag' created in ProgramData\Microsoft\IntuneApps folder."
 } else {
-    Write-Host "File 'Test.tag' already exists in ProgramData folder."
+    Write-Host "File 'Test.tag' already exists in ProgramData\Microsoft\IntuneApps folder."
 }
