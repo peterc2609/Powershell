@@ -1,14 +1,12 @@
-$folderPath = "$env:ProgramData\Microsoft\IntuneApps"
-$filePath = "$folderPath\Test.tag"
-
-if (-Not (Test-Path -Path $folderPath)) {
-    New-Item -ItemType Directory -Path $folderPath -Force
-    Write-Host "Folder 'IntuneApps' created in ProgramData\Microsoft directory."
+#This script will check the Office ClickToRun Registry key for 'VersionToReport'
+$OfficeVersion = Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Office\ClickToRun\Configuration"
+If ($OfficeVersion.VersionToReport -ge "16.0.15928.20282")
+{
+    "Office Version - Don't write tag"
+    Exit 0
 }
-
-if (-Not (Test-Path -Path $filePath)) {
-    New-Item -ItemType File -Path $filePath -Force
-    Write-Host "File 'Test.tag' created in ProgramData\Microsoft\IntuneApps folder."
-} else {
-    Write-Host "File 'Test.tag' already exists in ProgramData\Microsoft\IntuneApps folder."
+Else
+{
+    "Office Version - Write tag"
+    Exit 1
 }
