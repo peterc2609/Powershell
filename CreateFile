@@ -1,0 +1,8 @@
+$filePath = "$env:ProgramData\Test.tag"
+
+if (-Not (Test-Path -Path $filePath)) {
+    New-Item -ItemType File -Path $filePath -Force
+    Write-Host "File 'Test.tag' created in ProgramData folder."
+} else {
+    Write-Host "File 'Test.tag' already exists in ProgramData folder."
+}
