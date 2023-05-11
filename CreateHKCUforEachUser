@@ -1,0 +1,12 @@
+$RegPath = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList"
+$Profiles = Get-ChildItem -Path $RegPath | Where-Object {$_.Name -like "*S-1-5-21*"}
+
+ForEach ($Profile in $Profiles) {
+    $UserRegPath = Join-Path $Profile.PSPath "Software\Microsoft\Office\16.0\Outlook\Options\General"
+    If (Test-Path $UserRegPath) {
+        Set-ItemProperty -Path $UserRegPath -Name "HideNewOutlookToggle" -Value 1 -Type DWORD -Force
+    } Else {
+        New-Item -Path $UserRegPath -Force | Out-Null
+        New-ItemProperty -Path $UserRegPath -Name "HideNewOutlookToggle" -Value 1 -Type DWORD -Force | Out-Null
+    }
+}
