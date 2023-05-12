@@ -1,0 +1,23 @@
+# Check for the following registry key and if not present, create it
+$registryKey = "HKEY_CURRENT_USER\Software\Microsoft\Office\16.0\Outlook\Options\General"
+
+if (Test-Path $registryKey) {
+    # The registry key already exists
+} else {
+    # The registry key does not exist, so create it
+    New-Item $registryKey
+}
+
+# Check for the following DWORD setting "HideNewOutlookToggle" in HKEY_CURRENT_USER\Software\Microsoft\Office\16.0\Outlook\Options\General
+$hideNewOutlookToggle = Get-ItemProperty -Path $registryKey -Name HideNewOutlookToggle
+
+if ($hideNewOutlookToggle -eq $null) {
+    # The DWORD setting does not exist, so create it
+    Set-ItemProperty -Path $registryKey -Name HideNewOutlookToggle -Value 1
+} else {
+    # The DWORD setting exists, so check its value
+    if ($hideNewOutlookToggle -ne 1) {
+        # The DWORD setting is not set to 1, so set it to 1
+        Set-ItemProperty -Path $registryKey -Name HideNewOutlookToggle -Value 1
+    }
+}
