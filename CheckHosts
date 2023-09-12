@@ -1,0 +1,18 @@
+# Define the site name to check for in the hosts file
+$siteToCheck = "test.site"
+
+# Get the path to the hosts file
+$hostsFilePath = "$env:SystemRoot\System32\drivers\etc\hosts"
+
+# Read the hosts file content
+$hostsFileContent = Get-Content -Path $hostsFilePath -ErrorAction SilentlyContinue
+
+# Check if the site name exists in the hosts file
+$siteFound = $hostsFileContent | Where-Object { $_ -match "^\d+\.\d+\.\d+\.\d+\s+$siteToCheck" }
+
+# Return True if the site is found, False otherwise
+if ($siteFound) {
+    Write-Output "True"
+} else {
+    Write-Output "False"
+}
