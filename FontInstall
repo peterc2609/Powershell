@@ -1,0 +1,41 @@
+$StorageAccountContext = New-AzStorageContext -StorageAccountName "ENTER YOUR STORAGE ACCOUNT NAME" -SasToken "ENTER YOUR SAS TOKEN" -ErrorAction Stop
+$blobContents = Get-AzStorageBlob -Container "fonts" -Context $StorageAccountContext -ErrorAction Stop
+
+$logfile = "C:/ProgramData/Microsoft/IntuneApps/FontInstall.log"
+
+foreach ($blobContent in $blobContents)
+{
+	#Download the blobs
+	$localPath = "C:\Windows\Fonts\" + $blobContent.Name
+
+	# Check if the file already exists locally 
+	if (!(Test-Path $localPath)){
+
+		Get-AzStorageBlobContent -Container "fonts" -Blob $blobContent.Name -Context $StorageAccountContext -Destination $localPath -Force -ErrorAction Stop
+
+		# Get the font name
+		$fontFile = "C:\Windows\Fonts\$($blobContent.Name)"
+		$fontCollection = New-Object System.Drawing.Text.PrivateFontCollection
+		$fontCollection.AddFontFile($fontFile)
+		$fontFamily = $fontCollection.Families[0]
+		$fontName = $fontFamily.Name
+	
+		# Add font type depending on file extension 
+		if ($blobContent.Name.EndsWith(".ttf")) {
+			$fontName += " (TrueType)"
+		} elseif ($blobContent.Name.EndsWith(".otf")) {
+			$fontName += " (OpenType)"
+		}
+	
+		# Add the font to the registry 
+		New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts" -Name "$fontName" -Value $blobContent.Name -Force
+	
+		$message = "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss'): Installed $($blobContent.Name) is $($fontName)"
+		Write-Output $message | Out-File $logfile -Append
+	} else {
+
+		# File already exists locally, skip downloading 
+		$message = "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss'): File $($blobContent.Name) already exists, skipping."
+		Write-Output $message | Out-File $logfile -Append
+	} 
+}
