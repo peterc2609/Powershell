@@ -1,0 +1,46 @@
+Add-Type -AssemblyName System.Windows.Forms
+
+# Create the main form
+$form = New-Object System.Windows.Forms.Form
+$form.Text = 'PowerShell Module Installer'
+$form.Size = New-Object System.Drawing.Size(400,300)
+
+# Search box
+$searchBox = New-Object System.Windows.Forms.TextBox
+$searchBox.Location = New-Object System.Drawing.Point(10,10)
+$searchBox.Size = New-Object System.Drawing.Size(260,20)
+$form.Controls.Add($searchBox)
+
+# Search button
+$searchButton = New-Object System.Windows.Forms.Button
+$searchButton.Location = New-Object System.Drawing.Point(280,10)
+$searchButton.Size = New-Object System.Drawing.Size(100,20)
+$searchButton.Text = 'Search'
+$searchButton.Add_Click({
+    $searchResults.Items.Clear()
+    $modules = Find-Module -Name "*$($searchBox.Text)*"
+    $modules | ForEach-Object { $searchResults.Items.Add($_.Name) }
+})
+$form.Controls.Add($searchButton)
+
+# List box for displaying search results
+$searchResults = New-Object System.Windows.Forms.ListBox
+$searchResults.Location = New-Object System.Drawing.Point(10,40)
+$searchResults.Size = New-Object System.Drawing.Size(370,150)
+$form.Controls.Add($searchResults)
+
+# Install button
+$installButton = New-Object System.Windows.Forms.Button
+$installButton.Location = New-Object System.Drawing.Point(280,200)
+$installButton.Size = New-Object System.Drawing.Size(100,20)
+$installButton.Text = 'Install'
+$installButton.Add_Click({
+    foreach ($module in $searchResults.SelectedItems) {
+        Install-Module -Name $module -Force
+    }
+    [System.Windows.Forms.MessageBox]::Show('Installation Complete')
+})
+$form.Controls.Add($installButton)
+
+# Show the form
+$form.ShowDialog()
