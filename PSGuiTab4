@@ -1,0 +1,103 @@
+Add-Type -AssemblyName System.Windows.Forms
+Add-Type -AssemblyName System.Drawing
+
+# Function to write log
+function Write-Log {
+    param([string]$message)
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    Add-Content -Path "C:\temp\PSModuleInstaller.log" -Value "$timestamp - $message"
+}
+
+# Create the main form
+$form = New-Object System.Windows.Forms.Form
+$form.Text = 'PowerShell Module Installer'
+$form.Size = New-Object System.Drawing.Size(700,550)
+
+# Create TabControl
+$tabControl = New-Object System.Windows.Forms.TabControl
+$tabControl.Location = New-Object System.Drawing.Point(10,10)
+$tabControl.Size = New-Object System.Drawing.Size(670,450)
+
+# Create Tabs
+$tabSearch = New-Object System.Windows.Forms.TabPage
+$tabSearch.Text = 'Search Modules'
+$tabInstalled = New-Object System.Windows.Forms.TabPage
+$tabInstalled.Text = 'Installed Modules'
+$tabControl.Controls.Add($tabSearch)
+$tabControl.Controls.Add($tabInstalled)
+$form.Controls.Add($tabControl)
+
+# Progress Bar
+$progressBar = New-Object System.Windows.Forms.ProgressBar
+$progressBar.Location = New-Object System.Drawing.Point(10,490)
+$progressBar.Size = New-Object System.Drawing.Size(670,20)
+$progressBar.Style = [System.Windows.Forms.ProgressBarStyle]::Continuous
+$form.Controls.Add($progressBar)
+
+# Status Label
+$statusLabel = New-Object System.Windows.Forms.Label
+$statusLabel.Location = New-Object System.Drawing.Point(10,470)
+$statusLabel.Size = New-Object System.Drawing.Size(670,20)
+$form.Controls.Add($statusLabel)
+
+# Adding controls to Search Modules Tab
+$searchLabel = New-Object System.Windows.Forms.Label
+$searchLabel.Location = New-Object System.Drawing.Point(10,10)
+$searchLabel.Size = New-Object System.Drawing.Size(650,40)
+$searchLabel.Text = 'Please enter the name of the PowerShell module you require. A partial name is acceptable.'
+$tabSearch.Controls.Add($searchLabel)
+
+$searchBox = New-Object System.Windows.Forms.TextBox
+$searchBox.Location = New-Object System.Drawing.Point(10,50)
+$searchBox.Size = New-Object System.Drawing.Size(260,20)
+$tabSearch.Controls.Add($searchBox)
+
+$searchButton = New-Object System.Windows.Forms.Button
+$searchButton.Location = New-Object System.Drawing.Point(280,50)
+$searchButton.Size = New-Object System.Drawing.Size(100,20)
+$searchButton.Text = 'Search'
+$tabSearch.Controls.Add($searchButton)
+
+$resultsLabel = New-Object System.Windows.Forms.Label
+$resultsLabel.Location = New-Object System.Drawing.Point(10,80)
+$resultsLabel.Size = New-Object System.Drawing.Size(350,20)
+$resultsLabel.Text = 'PowerShell Modules found:'
+$tabSearch.Controls.Add($resultsLabel)
+
+$checkedListBox = New-Object System.Windows.Forms.CheckedListBox
+$checkedListBox.Location = New-Object System.Drawing.Point(10,100)
+$checkedListBox.Size = New-Object System.Drawing.Size(350,280)
+$checkedListBox.CheckOnClick = $true
+$tabSearch.Controls.Add($checkedListBox)
+
+$addButton = New-Object System.Windows.Forms.Button
+$addButton.Location = New-Object System.Drawing.Point(280,390)
+$addButton.Size = New-Object System.Drawing.Size(80,20)
+$addButton.Text = 'Add'
+$tabSearch.Controls.Add($addButton)
+
+$selectedLabel = New-Object System.Windows.Forms.Label
+$selectedLabel.Location = New-Object System.Drawing.Point(370,80)
+$selectedLabel.Size = New-Object System.Drawing.Size(290,20)
+$selectedLabel.Text = 'PowerShell modules selected for installation:'
+$tabSearch.Controls.Add($selectedLabel)
+
+$selectedListBox = New-Object System.Windows.Forms.ListBox
+$selectedListBox.Location = New-Object System.Drawing.Point(370,100)
+$selectedListBox.Size = New-Object System.Drawing.Size(290,280)
+$tabSearch.Controls.Add($selectedListBox)
+
+$installButton = New-Object System.Windows.Forms.Button
+$installButton.Location = New-Object System.Drawing.Point(580,390)
+$installButton.Size = New-Object System.Drawing.Size(80,20)
+$installButton.Text = 'Install'
+$tabSearch.Controls.Add($installButton)
+
+$selectedModules = New-Object System.Collections.ArrayList
+
+# Search Button Click Event
+$searchButton.Add_Click({
+    $statusLabel.Text = "Searching for modules: $($searchBox.Text)"
+    $progressBar.Value = 0
+    $progressBar.PerformStep()
+    Write-Log "Searching for modules: $($
