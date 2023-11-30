@@ -100,4 +100,96 @@ $searchButton.Add_Click({
     $statusLabel.Text = "Searching for modules: $($searchBox.Text)"
     $progressBar.Value = 0
     $progressBar.PerformStep()
-    Write-Log "Searching for modules: $($
+    Write-Log "Searching for modules: $($searchBox.Text)"
+    
+    $checkedListBox.Items.Clear()
+    $modules = Find-Module -Name "*$($searchBox.Text)*" | Sort-Object Name
+    foreach ($module in $modules) {
+        $checkedListBox.Items.Add($module.Name)
+    }
+
+    $progressBar.Value = 100
+    $statusLabel.Text = "Search complete."
+    Write-Log "Search completed."
+})
+
+# Add Button Click Event
+$addButton.Add_Click({
+    foreach ($item in $checkedListBox.CheckedItems) {
+        if ($selectedModules -notcontains $item) {
+            $selectedModules.Add($item) | Out-Null
+            $selectedListBox.Items.Add($item)
+        }
+    }
+})
+
+# Install Button Click Event
+$installButton.Add_Click({
+    $statusLabel.Text = "Installing selected modules..."
+    $progressBar.Value = 0
+    $progressBar.PerformStep()
+    Write-Log "Installing modules..."
+    
+    foreach ($module in $selectedModules) {
+        Install-Module -Name $module -Force -Scope CurrentUser
+    }
+
+    $progressBar.Value = 100
+    $statusLabel.Text = "Installation complete."
+    Write-Log "Installation complete."
+})
+
+# Adding controls to Installed Modules Tab
+$showInstalledButton = New-Object System.Windows.Forms.Button
+$showInstalledButton.Location = New-Object System.Drawing.Point(10,10)
+$showInstalledButton.Size = New-Object System.Drawing.Size(160,30)
+$showInstalledButton.Text = 'Show Installed Modules'
+$tabInstalled.Controls.Add($showInstalledButton)
+
+$installedModulesBox = New-Object System.Windows.Forms.CheckedListBox
+$installedModulesBox.Location = New-Object System.Drawing.Point(10,50)
+$installedModulesBox.Size = New-Object System.Drawing.Size(640,300)
+$installedModulesBox.CheckOnClick = $true
+$tabInstalled.Controls.Add($installedModulesBox)
+
+$uninstallButton = New-Object System.Windows.Forms.Button
+$uninstallButton.Location = New-Object System.Drawing.Point(10,360)
+$uninstallButton.Size = New-Object System.Drawing.Size(160,30)
+$uninstallButton.Text = 'Uninstall Selected Modules'
+$tabInstalled.Controls.Add($uninstallButton)
+
+# Show Installed Modules Button Click Event
+$showInstalledButton.Add_Click({
+    $statusLabel.Text = "Loading installed modules..."
+    $progressBar.Value = 0
+    $progressBar.PerformStep()
+    Write-Log "Loading installed modules..."
+    
+    $installedModulesBox.Items.Clear()
+    $installedModules = Get-Module -ListAvailable | Sort-Object Name
+    foreach ($module in $installedModules) {
+        $installedModulesBox.Items.Add($module.Name)
+    }
+
+    $progressBar.Value = 100
+    $statusLabel.Text = "Loaded installed modules."
+})
+
+# Uninstall Button Click Event
+$uninstallButton.Add_Click({
+    $statusLabel.Text = "Uninstalling selected modules..."
+    $progressBar.Value = 0
+    $progressBar.PerformStep()
+    Write-Log "Uninstalling modules..."
+    
+    foreach ($module in $installedModulesBox.CheckedItems) {
+        Uninstall-Module -Name $module -Force
+    }
+
+    $progressBar.Value = 100
+    $statusLabel.Text = "Uninstallation complete."
+    Write-Log "Uninstallation complete."
+})
+
+# Show the form
+$form.ShowDialog()
