@@ -1,0 +1,217 @@
+Add-Type -AssemblyName System.Windows.Forms
+Add-Type -AssemblyName System.Drawing
+
+# Function to write log
+function Write-Log {
+    param([string]$message)
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    Add-Content -Path "C:\temp\PSModuleInstaller.log" -Value "$timestamp - $message"
+}
+
+# Create the main form
+$form = New-Object System.Windows.Forms.Form
+$form.Text = 'PowerShell Module Installer'
+$form.Size = New-Object System.Drawing.Size(700,550)
+
+# Create TabControl
+$tabControl = New-Object System.Windows.Forms.TabControl
+$tabControl.Location = New-Object System.Drawing.Point(10,10)
+$tabControl.Size = New-Object System.Drawing.Size(670,450)
+
+# Create Tabs
+$tabSearch = New-Object System.Windows.Forms.TabPage
+$tabSearch.Text = 'Search Modules'
+$tabInstalled = New-Object System.Windows.Forms.TabPage
+$tabInstalled.Text = 'Installed Modules'
+$tabControl.Controls.Add($tabSearch)
+$tabControl.Controls.Add($tabInstalled)
+$form.Controls.Add($tabControl)
+
+# Progress Bar
+$progressBar = New-Object System.Windows.Forms.ProgressBar
+$progressBar.Location = New-Object System.Drawing.Point(10,490)
+$progressBar.Size = New-Object System.Drawing.Size(670,20)
+$progressBar.Style = [System.Windows.Forms.ProgressBarStyle]::Continuous
+$form.Controls.Add($progressBar)
+
+# Status Label
+$statusLabel = New-Object System.Windows.Forms.Label
+$statusLabel.Location = New-Object System.Drawing.Point(10,470)
+$statusLabel.Size = New-Object System.Drawing.Size(670,20)
+$form.Controls.Add($statusLabel)
+
+# Adding controls to Search Modules Tab
+$searchLabel = New-Object System.Windows.Forms.Label
+$searchLabel.Location = New-Object System.Drawing.Point(10,10)
+$searchLabel.Size = New-Object System.Drawing.Size(650,40)
+$searchLabel.Text = 'Please enter the name of the PowerShell module you require. A partial name is acceptable.'
+$tabSearch.Controls.Add($searchLabel)
+
+$searchBox = New-Object System.Windows.Forms.TextBox
+$searchBox.Location = New-Object System.Drawing.Point(10,50)
+$searchBox.Size = New-Object System.Drawing.Size(260,20)
+$tabSearch.Controls.Add($searchBox)
+
+$searchButton = New-Object System.Windows.Forms.Button
+$searchButton.Location = New-Object System.Drawing.Point(280,50)
+$searchButton.Size = New-Object System.Drawing.Size(100,20)
+$searchButton.Text = 'Search'
+$tabSearch.Controls.Add($searchButton)
+
+$resultsLabel = New-Object System.Windows.Forms.Label
+$resultsLabel.Location = New-Object System.Drawing.Point(10,80)
+$resultsLabel.Size = New-Object System.Drawing.Size(350,20)
+$resultsLabel.Text = 'PowerShell Modules found:'
+$tabSearch.Controls.Add($resultsLabel)
+
+$checkedListBox = New-Object System.Windows.Forms.CheckedListBox
+$checkedListBox.Location = New-Object System.Drawing.Point(10,100)
+$checkedListBox.Size = New-Object System.Drawing.Size(350,280)
+$checkedListBox.CheckOnClick = $true
+$tabSearch.Controls.Add($checkedListBox)
+
+$addButton = New-Object System.Windows.Forms.Button
+$addButton.Location = New-Object System.Drawing.Point(280,390)
+$addButton.Size = New-Object System.Drawing.Size(80,20)
+$addButton.Text = 'Add'
+$tabSearch.Controls.Add($addButton)
+
+$selectedLabel = New-Object System.Windows.Forms.Label
+$selectedLabel.Location = New-Object System.Drawing.Point(370,80)
+$selectedLabel.Size = New-Object System.Drawing.Size(290,20)
+$selectedLabel.Text = 'PowerShell modules selected for installation:'
+$tabSearch.Controls.Add($selectedLabel)
+
+$selectedListBox = New-Object System.Windows.Forms.ListBox
+$selectedListBox.Location = New-Object System.Drawing.Point(370,100)
+$selectedListBox.Size = New-Object System.Drawing.Size(290,250)
+$tabSearch.Controls.Add($selectedListBox)
+
+$removeButton = New-Object System.Windows.Forms.Button
+$removeButton.Location = New-Object System.Drawing.Point(580,360)
+$removeButton.Size = New-Object System.Drawing.Size(80,20)
+$removeButton.Text = 'Remove'
+$tabSearch.Controls.Add($removeButton)
+
+$installButton = New-Object System.Windows.Forms.Button
+$installButton.Location = New-Object System.Drawing.Point(580,390)
+$installButton.Size = New-Object System.Drawing.Size(80,20)
+$installButton.Text = 'Install'
+$tabSearch.Controls.Add($installButton)
+
+$selectedModules = New-Object System.Collections.ArrayList
+
+# Search Button Click Event
+$searchButton.Add_Click({
+    $statusLabel.Text = "Searching for modules: $($searchBox.Text)"
+    $progressBar.Value = 0
+    $progressBar.PerformStep()
+    Write-Log "Searching for modules: $($searchBox.Text)"
+    
+    $checkedListBox.Items.Clear()
+    $modules = Find-Module -Name "*$($searchBox.Text)*" | Sort-Object Name
+    foreach ($module in $modules) {
+        $checkedListBox.Items.Add($module.Name)
+        Write-Log "Found module: $($module.Name)"
+    }
+
+    $progressBar.Value = 100
+    $statusLabel.Text = "Search complete."
+    Write-Log "Search completed."
+})
+
+# Add Button Click Event
+$addButton.Add_Click({
+    foreach ($item in $checkedListBox.CheckedItems) {
+        if ($selectedModules -notcontains $item) {
+            $selectedModules.Add($item) | Out-Null
+            $selectedListBox.Items.Add($item)
+            Write-Log "Added module for installation: $item"
+        }
+    }
+})
+
+# Remove Button Click Event
+$removeButton.Add_Click({
+    $selectedItem = $selectedListBox.SelectedItem
+    if ($selectedItem -ne $null) {
+        $selectedModules.Remove($selectedItem) | Out-Null
+        $selectedListBox.Items.Remove($selectedItem)
+        Write-Log "Removed module from installation list: $selectedItem"
+    }
+})
+
+# Install Button Click Event
+$installButton.Add_Click({
+    $statusLabel.Text = "Installing selected modules..."
+    $progressBar.Value = 0
+    $progressBar.PerformStep()
+    Write-Log "Installing modules..."
+    
+    foreach ($module in $selectedModules) {
+        Install-Module -Name $module -Force -Scope CurrentUser
+        Write-Log "Installed module: $module"
+    }
+
+    $progressBar.Value = 100
+    $statusLabel.Text = "Installation complete."
+    Write-Log "Installation complete."
+})
+
+# Adding controls to Installed Modules Tab
+$showInstalledButton = New-Object System.Windows.Forms.Button
+$showInstalledButton.Location = New-Object System.Drawing.Point(10,10)
+$showInstalledButton.Size = New-Object System.Drawing.Size(160,30)
+$showInstalledButton.Text = 'Show Installed Modules'
+$tabInstalled.Controls.Add($showInstalledButton)
+
+$installedModulesBox = New-Object System.Windows.Forms.CheckedListBox
+$installedModulesBox.Location = New-Object System.Drawing.Point(10,50)
+$installedModulesBox.Size = New-Object System.Drawing.Size(640,300)
+$installedModulesBox.CheckOnClick = $true
+$tabInstalled.Controls.Add($installedModulesBox)
+
+$uninstallButton = New-Object System.Windows.Forms.Button
+$uninstallButton.Location = New-Object System.Drawing.Point(10,360)
+$uninstallButton.Size = New-Object System.Drawing.Size(160,30)
+$uninstallButton.Text = 'Uninstall Selected Modules'
+$tabInstalled.Controls.Add($uninstallButton)
+
+# Show Installed Modules Button Click Event
+$showInstalledButton.Add_Click({
+    $statusLabel.Text = "Loading installed modules..."
+    $progressBar.Value = 0
+    $progressBar.PerformStep()
+    Write-Log "Loading installed modules..."
+    
+    $installedModulesBox.Items.Clear()
+    $installedModules = Get-Module -ListAvailable | Sort-Object Name
+    foreach ($module in $installedModules) {
+        $installedModulesBox.Items.Add($module.Name)
+        Write-Log "Loaded installed module: $($module.Name)"
+    }
+
+    $progressBar.Value = 100
+    $statusLabel.Text = "Loaded installed modules."
+    Write-Log "Loaded installed modules."
+})
+
+# Uninstall Button Click Event
+$uninstallButton.Add_Click({
+    $statusLabel.Text = "Uninstalling selected modules..."
+    $progressBar.Value = 0
+    $progressBar.PerformStep()
+    Write-Log "Uninstalling modules..."
+    
+    foreach ($module in $installedModulesBox.CheckedItems) {
+        Uninstall-Module -Name $module -Force
+        Write-Log "Uninstalled module: $module"
+    }
+
+    $progressBar.Value = 100
+    $statusLabel.Text = "Uninstallation complete."
+    Write-Log "Uninstallation complete."
+})
+
+# Show the form
+$form.ShowDialog()
