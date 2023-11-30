@@ -1,0 +1,79 @@
+Add-Type -AssemblyName System.Windows.Forms
+
+# Create the main form
+$form = New-Object System.Windows.Forms.Form
+$form.Text = 'PowerShell Module Installer'
+$form.Size = New-Object System.Drawing.Size(700,400)
+
+# Search box
+$searchBox = New-Object System.Windows.Forms.TextBox
+$searchBox.Location = New-Object System.Drawing.Point(10,10)
+$searchBox.Size = New-Object System.Drawing.Size(260,20)
+$form.Controls.Add($searchBox)
+
+# Search button
+$searchButton = New-Object System.Windows.Forms.Button
+$searchButton.Location = New-Object System.Drawing.Point(280,10)
+$searchButton.Size = New-Object System.Drawing.Size(100,20)
+$searchButton.Text = 'Search'
+$form.Controls.Add($searchButton)
+
+# Checkbox list for displaying search results
+$checkedListBox = New-Object System.Windows.Forms.CheckedListBox
+$checkedListBox.Location = New-Object System.Drawing.Point(10,40)
+$checkedListBox.Size = New-Object System.Drawing.Size(350,250)
+$checkedListBox.CheckOnClick = $true
+$form.Controls.Add($checkedListBox)
+
+# Add button to add selected modules to the collection
+$addButton = New-Object System.Windows.Forms.Button
+$addButton.Location = New-Object System.Drawing.Point(280,300)
+$addButton.Size = New-Object System.Drawing.Size(80,20)
+$addButton.Text = 'Add'
+$form.Controls.Add($addButton)
+
+# List box for displaying selected modules
+$selectedListBox = New-Object System.Windows.Forms.ListBox
+$selectedListBox.Location = New-Object System.Drawing.Point(370,40)
+$selectedListBox.Size = New-Object System.Drawing.Size(310,250)
+$form.Controls.Add($selectedListBox)
+
+# Install button
+$installButton = New-Object System.Windows.Forms.Button
+$installButton.Location = New-Object System.Drawing.Point(600,300)
+$installButton.Size = New-Object System.Drawing.Size(80,20)
+$installButton.Text = 'Install'
+$form.Controls.Add($installButton)
+
+# Selected modules collection
+$selectedModules = New-Object System.Collections.ArrayList
+
+# Search Button Click Event
+$searchButton.Add_Click({
+    $checkedListBox.Items.Clear()
+    $modules = Find-Module -Name "*$($searchBox.Text)*"
+    foreach ($module in $modules) {
+        $checkedListBox.Items.Add($module.Name)
+    }
+})
+
+# Add Button Click Event
+$addButton.Add_Click({
+    foreach ($item in $checkedListBox.CheckedItems) {
+        if ($selectedModules -notcontains $item) {
+            $selectedModules.Add($item) | Out-Null
+            $selectedListBox.Items.Add($item)
+        }
+    }
+})
+
+# Install Button Click Event
+$installButton.Add_Click({
+    foreach ($module in $selectedModules) {
+        Install-Module -Name $module -Force -Scope CurrentUser
+    }
+    [System.Windows.Forms.MessageBox]::Show("Installation Complete")
+})
+
+# Show the form
+$form.ShowDialog()
