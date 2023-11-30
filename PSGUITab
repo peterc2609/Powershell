@@ -21,7 +21,96 @@ $tabControl.Controls.Add($tabSearch)
 $tabControl.Controls.Add($tabInstalled)
 
 # Adding controls to Search Modules Tab
-# ... [Insert all the search functionality controls here, adjusting their locations relative to the tab page]
+# Label for Search Box
+$searchLabel = New-Object System.Windows.Forms.Label
+$searchLabel.Location = New-Object System.Drawing.Point(10,10)
+$searchLabel.Size = New-Object System.Drawing.Size(650,40)
+$searchLabel.Text = 'Please enter the name of the PowerShell module you require. A partial name is acceptable.'
+$tabSearch.Controls.Add($searchLabel)
+
+# Search box
+$searchBox = New-Object System.Windows.Forms.TextBox
+$searchBox.Location = New-Object System.Drawing.Point(10,50)
+$searchBox.Size = New-Object System.Drawing.Size(260,20)
+$tabSearch.Controls.Add($searchBox)
+
+# Search button
+$searchButton = New-Object System.Windows.Forms.Button
+$searchButton.Location = New-Object System.Drawing.Point(280,50)
+$searchButton.Size = New-Object System.Drawing.Size(100,20)
+$searchButton.Text = 'Search'
+$tabSearch.Controls.Add($searchButton)
+
+# Label for Search Results
+$resultsLabel = New-Object System.Windows.Forms.Label
+$resultsLabel.Location = New-Object System.Drawing.Point(10,80)
+$resultsLabel.Size = New-Object System.Drawing.Size(350,20)
+$resultsLabel.Text = 'PowerShell Modules found:'
+$tabSearch.Controls.Add($resultsLabel)
+
+# Checkbox list for displaying search results
+$checkedListBox = New-Object System.Windows.Forms.CheckedListBox
+$checkedListBox.Location = New-Object System.Drawing.Point(10,100)
+$checkedListBox.Size = New-Object System.Drawing.Size(350,280)
+$checkedListBox.CheckOnClick = $true
+$tabSearch.Controls.Add($checkedListBox)
+
+# Add button to add selected modules to the collection
+$addButton = New-Object System.Windows.Forms.Button
+$addButton.Location = New-Object System.Drawing.Point(280,390)
+$addButton.Size = New-Object System.Drawing.Size(80,20)
+$addButton.Text = 'Add'
+$tabSearch.Controls.Add($addButton)
+
+# Label for Selected Modules
+$selectedLabel = New-Object System.Windows.Forms.Label
+$selectedLabel.Location = New-Object System.Drawing.Point(370,80)
+$selectedLabel.Size = New-Object System.Drawing.Size(290,20)
+$selectedLabel.Text = 'PowerShell modules selected for installation:'
+$tabSearch.Controls.Add($selectedLabel)
+
+# List box for displaying selected modules
+$selectedListBox = New-Object System.Windows.Forms.ListBox
+$selectedListBox.Location = New-Object System.Drawing.Point(370,100)
+$selectedListBox.Size = New-Object System.Drawing.Size(290,280)
+$tabSearch.Controls.Add($selectedListBox)
+
+# Install button
+$installButton = New-Object System.Windows.Forms.Button
+$installButton.Location = New-Object System.Drawing.Point(580,390)
+$installButton.Size = New-Object System.Drawing.Size(80,20)
+$installButton.Text = 'Install'
+$tabSearch.Controls.Add($installButton)
+
+# Selected modules collection
+$selectedModules = New-Object System.Collections.ArrayList
+
+# Search Button Click Event
+$searchButton.Add_Click({
+    $checkedListBox.Items.Clear()
+    $modules = Find-Module -Name "*$($searchBox.Text)*"
+    foreach ($module in $modules) {
+        $checkedListBox.Items.Add($module.Name)
+    }
+})
+
+# Add Button Click Event
+$addButton.Add_Click({
+    foreach ($item in $checkedListBox.CheckedItems) {
+        if ($selectedModules -notcontains $item) {
+            $selectedModules.Add($item) | Out-Null
+            $selectedListBox.Items.Add($item)
+        }
+    }
+})
+
+# Install Button Click Event
+$installButton.Add_Click({
+    foreach ($module in $selectedModules) {
+        Install-Module -Name $module -Force -Scope CurrentUser
+    }
+    [System.Windows.Forms.MessageBox]::Show("Installation Complete")
+})
 
 # Adding controls to Installed Modules Tab
 $showInstalledButton = New-Object System.Windows.Forms.Button
@@ -44,8 +133,6 @@ $showInstalledButton.Add_Click({
 
 # Add TabControl to the form
 $form.Controls.Add($tabControl)
-
-# Event handlers for Search Modules Tab remain the same...
 
 # Show the form
 $form.ShowDialog()
