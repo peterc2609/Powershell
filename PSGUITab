@@ -1,0 +1,51 @@
+Add-Type -AssemblyName System.Windows.Forms
+
+# Create the main form
+$form = New-Object System.Windows.Forms.Form
+$form.Text = 'PowerShell Module Installer'
+$form.Size = New-Object System.Drawing.Size(700,500)
+
+# Create TabControl
+$tabControl = New-Object System.Windows.Forms.TabControl
+$tabControl.Location = New-Object System.Drawing.Point(10,10)
+$tabControl.Size = New-Object System.Drawing.Size(670,450)
+
+# Create Tabs
+$tabSearch = New-Object System.Windows.Forms.TabPage
+$tabSearch.Text = 'Search Modules'
+$tabInstalled = New-Object System.Windows.Forms.TabPage
+$tabInstalled.Text = 'Installed Modules'
+
+# Add Tabs to TabControl
+$tabControl.Controls.Add($tabSearch)
+$tabControl.Controls.Add($tabInstalled)
+
+# Adding controls to Search Modules Tab
+# ... [Insert all the search functionality controls here, adjusting their locations relative to the tab page]
+
+# Adding controls to Installed Modules Tab
+$showInstalledButton = New-Object System.Windows.Forms.Button
+$showInstalledButton.Location = New-Object System.Drawing.Point(10,10)
+$showInstalledButton.Size = New-Object System.Drawing.Size(160,30)
+$showInstalledButton.Text = 'Show Installed Modules'
+$tabInstalled.Controls.Add($showInstalledButton)
+
+$installedModulesBox = New-Object System.Windows.Forms.ListBox
+$installedModulesBox.Location = New-Object System.Drawing.Point(10,50)
+$installedModulesBox.Size = New-Object System.Drawing.Size(640,360)
+$tabInstalled.Controls.Add($installedModulesBox)
+
+# Show Installed Modules Button Click Event
+$showInstalledButton.Add_Click({
+    $installedModulesBox.Items.Clear()
+    $installedModules = Get-Module -ListAvailable
+    $installedModules | ForEach-Object { $installedModulesBox.Items.Add($_.Name) }
+})
+
+# Add TabControl to the form
+$form.Controls.Add($tabControl)
+
+# Event handlers for Search Modules Tab remain the same...
+
+# Show the form
+$form.ShowDialog()
