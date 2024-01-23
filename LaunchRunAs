@@ -1,0 +1,8 @@
+# Custom message for the credential prompt
+$message = "Please enter your on-premises credentials in the format 'DOMAIN\Username'."
+
+# Prompt for credentials with a custom message
+$cred = $Host.UI.PromptForCredential("Credentials Required", $message, "", "NetBiosUserName")
+
+# Launch notepad.exe with the provided credentials
+Start-Process "notepad.exe" -Credential $cred
