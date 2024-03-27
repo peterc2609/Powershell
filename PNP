@@ -1,0 +1,29 @@
+#Define SiteURL
+$siteURL = "https://peter.sharepoint.com/sites/Templates"
+
+# Connect to SharePoint Online; this command might prompt for credentials
+# If your organization uses MFA, this prompt will handle it
+Connect-PnPOnline -Url $siteURL -UseWebLogin
+
+#Library Name
+$LibraryName = "Peter Templates"
+
+#Template Name
+$TemplateName = "PowerPoint Presentation"
+
+#Retrieve the item with title
+$template = Get-PnPListItem -List $LibraryName | Where-Object { $_["Title"] -eq $TemplateName}
+
+#Assuming the template is found, retrieve its file details
+if ($template -ne $null) {
+    $fileRef = $template["FileRef"] #This is the server-relative URL of the template file
+    $fileID = $item["ID"] #This is the template's unique ID
+} else {
+    Write-Host "File not found."
+}
+
+# Define the local path where you want to save the template
+$localPath = "$env:APPDATA\Microsoft\Templates\Blank.potx"
+
+# Download the file
+Get-PnPFile -Url $fileRef -Path $localPath -AsFile -Force
