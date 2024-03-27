@@ -1,0 +1,7 @@
+Get-PnPFile : Could not find a part of the path 'C:\Users\peter\AppData\Roaming\Microsoft\Templates\Blank.potx\Peter
+Standard Powerpoint Template.potx'.
+At C:\devspace\PPTwithPNP.ps1:29 char:1
++ Get-PnPFile -Url $fileRef -Path $localPath -AsFile -Force
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : WriteError: (:) [Get-PnPFile], DirectoryNotFoundException
+    + FullyQualifiedErrorId : EXCEPTION,PnP.PowerShell.Commands.Files.GetFile
