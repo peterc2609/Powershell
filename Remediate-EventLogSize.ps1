@@ -1,10 +1,14 @@
 $registrySettings = @(
     @{Path = "HKLM:\SYSTEM\CurrentControlSet\Services\EventLog\Windows PowerShell"; Name = "MaxSize"; Value = 1073741824},
-    @{Path = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WINEVT\Channels\Microsoft-Powershell\Operational"; Name = "MaxSize"; Value = 1073741824},
-    @{Path = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WINEVT\Channels\Microsoft-Windows-TaskScheduler\Operational"; Name = "MaxSize"; Value = 274066954}
+    @{Path = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WINEVT\Channels\Microsoft-Windows-Powershell/Operational"; Name = "MaxSize"; Value = 1073741824},
+    @{Path = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WINEVT\Channels\Microsoft-Windows-TaskScheduler/Operational"; Name = "MaxSize"; Value = 274066954},
+    @{Path = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WINEVT\Channels\Microsoft-Windows-AppLocker/EXE and DLL"; Name = "MaxSize"; Value = 104857600},
+    @{Path = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WINEVT\Channels\Microsoft-Windows-AppLocker/MSI and Script"; Name = "MaxSize"; Value = 104857600},
+    @{Path = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WINEVT\Channels\Microsoft-Windows-AppLocker/Packaged app-Deployment"; Name = "MaxSize"; Value = 104857600},
+    @{Path = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WINEVT\Channels\Microsoft-Windows-AppLocker/Packaged app-Execution"; Name = "MaxSize"; Value = 104857600}   
 )
 
-$logFile = "C:\temp\remediation_log.txt"
+$logFile = "C:\ProgramData\Microsoft\IntuneApps\EventLogSize\remediation_log.txt"
 
 foreach ($setting in $registrySettings) {
     if (Test-Path $setting.Path) {
