@@ -1,0 +1,25 @@
+# PowerShell script to enable NumLock on startup
+
+# Path to the registry key
+$regPath = "HKU\.DEFAULT\Control Panel\Keyboard"
+$regName = "InitialKeyboardIndicators"
+$regValue = "2"
+
+# Check if the registry path exists
+if (-not (Test-Path $regPath)) {
+    Write-Output "Registry path does not exist. Creating the registry path."
+    New-Item -Path "HKU\.DEFAULT\Control Panel" -Name "Keyboard" -Force
+}
+
+# Set the registry key value to enable NumLock
+Set-ItemProperty -Path $regPath -Name $regName -Value $regValue
+
+# Output success message
+Write-Output "NumLock enabled on startup."
+
+# Enable NumLock for the current user session immediately
+[void] [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
+[System.Windows.Forms.SendKeys]::SendWait("{NUMLOCK}")
+
+# Output success message for current session
+Write-Output "NumLock enabled for the current session."
