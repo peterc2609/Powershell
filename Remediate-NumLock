@@ -1,0 +1,15 @@
+# Remediation Script: Enable NumLock on startup
+
+$registryPath = "HKU\.DEFAULT\Control Panel\Keyboard"
+$registryValueName = "InitialKeyboardIndicators"
+$newValue = "2"
+
+# Set the value of InitialKeyboardIndicators to 2
+try {
+    Set-ItemProperty -Path $registryPath -Name $registryValueName -Value $newValue -ErrorAction Stop
+    Write-Output "NumLock is now enabled on startup."
+    exit 0  # Exit with code 0 to indicate success
+} catch {
+    Write-Output "Failed to enable NumLock on startup."
+    exit 1  # Exit with code 1 to indicate failure
+}
