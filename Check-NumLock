@@ -1,0 +1,16 @@
+# Detection Script: Check if NumLock is enabled on startup
+
+$registryPath = "HKU\.DEFAULT\Control Panel\Keyboard"
+$registryValueName = "InitialKeyboardIndicators"
+
+# Get the current value of InitialKeyboardIndicators
+$currentValue = Get-ItemProperty -Path $registryPath -Name $registryValueName -ErrorAction SilentlyContinue | Select-Object -ExpandProperty $registryValueName -ErrorAction SilentlyContinue
+
+# Check if the current value is 2 (which means NumLock is enabled on startup)
+if ($currentValue -eq "2") {
+    Write-Output "NumLock is enabled on startup."
+    exit 0  # Exit with code 0 to indicate that the detection passed
+} else {
+    Write-Output "NumLock is not enabled on startup."
+    exit 1  # Exit with code 1 to indicate that the detection failed
+}
