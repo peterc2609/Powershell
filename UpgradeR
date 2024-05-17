@@ -1,0 +1,29 @@
+# PowerShell script to upgrade R.Project, RStudio, and rtools via Chocolatey
+
+# Ensure Chocolatey is installed
+if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
+    Write-Host "Chocolatey is not installed. Installing Chocolatey..."
+    Set-ExecutionPolicy Bypass -Scope Process -Force; 
+    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072;
+    iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'));
+} else {
+    Write-Host "Chocolatey is already installed."
+}
+
+# Function to upgrade a package via Chocolatey
+function Upgrade-Package {
+    param (
+        [string]$packageName
+    )
+    Write-Host "Upgrading $packageName..."
+    choco upgrade $packageName -y
+}
+
+# List of packages to upgrade
+$packages = @("r.project", "rstudio", "rtools")
+
+foreach ($package in $packages) {
+    Upgrade-Package -packageName $package
+}
+
+Write-Host "All specified packages have been upgraded successfully."
