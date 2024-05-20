@@ -1,4 +1,4 @@
-# Remediation script to upgrade R.Project, RStudio, and rtools via Chocolatey
+# Script to install and upgrade R.Project, R.Studio, and Rtools via Chocolatey
 
 # Ensure Chocolatey is installed
 if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
@@ -10,7 +10,32 @@ if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
     Write-Host "Chocolatey is already installed."
 }
 
-# Function to upgrade a package via Chocolatey
+function Get-ChocoPackageVersion {
+    param (
+        [string]$packageName
+    )
+    $package = choco list --local-only $packageName | Select-String -Pattern $packageName
+    if ($package) {
+        $version = $package -replace '.*\|', ''
+        return $version
+    } else {
+        return $null
+    }
+}
+
+function Get-LatestChocoPackageVersion {
+    param (
+        [string]$packageName
+    )
+    $packageInfo = choco info $packageName
+    $latestVersion = $packageInfo | Select-String -Pattern "$packageName\s+(\d+(\.\d+)+)" | ForEach-Object { $_.Matches[0].Groups[1].Value }
+    if ($latestVersion) {
+        return $latestVersion
+    } else {
+        return $null
+    }
+}
+
 function Upgrade-Package {
     param (
         [string]$packageName
@@ -19,11 +44,22 @@ function Upgrade-Package {
     choco upgrade $packageName -y
 }
 
-# List of packages to upgrade
-$packages = @("r.project", "rstudio", "rtools")
+$requiredPackages = @("r.project", "rstudio", "rtools")
 
-foreach ($package in $packages) {
-    Upgrade-Package -packageName $package
+foreach ($package in $requiredPackages) {
+    $installedVersion = Get-ChocoPackageVersion -packageName $package
+    $latestVersion = Get-LatestChocoPackageVersion -packageName $package
+
+    if (-not $installedVersion) {
+        Write-Host "$package is not installed. Installing..."
+        Upgrade-Package -packageName $package
+    } elseif ([version]$installedVersion -lt [version]$latestVersion) {
+        Write-Host "$package is installed but not up-to-date. Installed version: $installedVersion, Latest version: $latestVersion"
+        Upgrade-Package -packageName $package
+    } else {
+        Write-Host "$package is up-to-date. Installed version: $installedVersion, Latest version: $latestVersion"
+    }
 }
 
-Write-Host "All specified packages have been upgraded successfully."
+Write-Host "Installation and upgrade process completed."
+exit 0
