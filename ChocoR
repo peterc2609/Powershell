@@ -28,7 +28,7 @@ function Get-LatestChocoPackageVersion {
         [string]$packageName
     )
     $packageInfo = choco info $packageName
-    $latestVersion = $packageInfo | Select-String -Pattern "$packageName\s+([\d\.]+)" | ForEach-Object { $_.Matches[0].Groups[1].Value }
+    $latestVersion = $packageInfo | Select-String -Pattern "$packageName\s+(\d+(\.\d+)+)" | ForEach-Object { $_.Matches[0].Groups[1].Value }
     if ($latestVersion) {
         return $latestVersion
     } else {
