@@ -1,4 +1,4 @@
-# PowerShell script to upgrade R.Project, RStudio, and rtools via Chocolatey
+# Remediation script to upgrade R.Project, RStudio, and rtools via Chocolatey
 
 # Ensure Chocolatey is installed
 if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
