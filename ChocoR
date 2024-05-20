@@ -1,16 +1,73 @@
-PS C:\Windows\System32> choco info r.studio
-Chocolatey v1.1.0
-R.Studio 2024.4.0
- Title: R.Studio | Published: 03/05/2024
- Number of Downloads: 517006 | Downloads for this version: 17
- Package url
- Chocolatey Package Source: n/a
- Package Checksum: '3LQY9uBoenYV/Xtb09TjCadkndhwgbMdPxry63+0XBXugVSmM2eunBI/9FdmAev9fwUhs4TdMhSpIUmGWZjJag==' (SHA512)
- Tags: r.project r.studio statistics admin
- Software Site: https://posit.co/
- Software License: http://www.gnu.org/licenses/agpl-3.0-standalone.html
- Summary: RStudio is a free and open source integrated development environment (IDE) for R. You can run it on your desktop
- Description: RStudio is a free and open source integrated development environment (IDE) for R. You can run it on your desktop
- Release Notes: https://docs.posit.co/ide/news/
+# Detection and remediation script for Intune Win32 app
 
-1 packages found.
+# Ensure Chocolatey is installed
+if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
+    Write-Host "Chocolatey is not installed. Installing Chocolatey..."
+    Set-ExecutionPolicy Bypass -Scope Process -Force; 
+    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072;
+    iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'));
+} else {
+    Write-Host "Chocolatey is already installed."
+}
+
+function Get-ChocoPackageVersion {
+    param (
+        [string]$packageName
+    )
+    $package = choco list --local-only $packageName | Select-String -Pattern $packageName
+    if ($package) {
+        $version = $package -replace '.*\|', ''
+        return $version
+    } else {
+        return $null
+    }
+}
+
+function Get-LatestChocoPackageVersion {
+    param (
+        [string]$packageName
+    )
+    $packageInfo = choco info $packageName
+    $latestVersion = $packageInfo | Select-String -Pattern "$packageName\s+([\d\.]+)" | ForEach-Object { $_.Matches[0].Groups[1].Value }
+    if ($latestVersion) {
+        return $latestVersion
+    } else {
+        return $null
+    }
+}
+
+function Upgrade-Package {
+    param (
+        [string]$packageName
+    )
+    Write-Host "Upgrading $packageName..."
+    choco upgrade $packageName -y
+}
+
+$requiredPackages = @("r.project", "rstudio", "rtools")
+$allUpToDate = $true
+
+foreach ($package in $requiredPackages) {
+    $installedVersion = Get-ChocoPackageVersion -packageName $package
+    $latestVersion = Get-LatestChocoPackageVersion -packageName $package
+
+    if (-not $installedVersion) {
+        Write-Host "$package is not installed. Installing..."
+        Upgrade-Package -packageName $package
+        $allUpToDate = $false
+    } elseif ([version]$installedVersion -lt [version]$latestVersion) {
+        Write-Host "$package is installed but not up-to-date. Installed version: $installedVersion, Latest version: $latestVersion"
+        Upgrade-Package -packageName $package
+        $allUpToDate = $false
+    } else {
+        Write-Host "$package is up-to-date. Installed version: $installedVersion, Latest version: $latestVersion"
+    }
+}
+
+if ($allUpToDate) {
+    Write-Host "All required packages are installed and up-to-date."
+    exit 0  # Exit code 0 means the application is detected
+} else {
+    Write-Host "One or more required packages were installed or updated."
+    exit 1  # Exit code 1 means the application was updated or installed
+}
