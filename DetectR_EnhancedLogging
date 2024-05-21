@@ -1,0 +1,86 @@
+# Custom detection script for Intune Win32 app with enhanced logging
+
+# Define log file path
+$logFilePath = "C:\ProgramData\Microsoft\IntuneApps\UpgradeR\Upgrader.log"
+if (-not (Test-Path "C:\ProgramData\Microsoft\IntuneApps\UpgradeR")) {
+    New-Item -ItemType Directory -Path "C:\ProgramData\Microsoft\IntuneApps\UpgradeR" -Force
+}
+
+# Function to write log entries
+function Write-Log {
+    param (
+        [string]$message
+    )
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $logMessage = "$timestamp - $message"
+    Add-Content -Path $logFilePath -Value $logMessage
+    Write-Host $logMessage
+}
+
+Write-Log "Starting detection process."
+
+# Ensure Chocolatey is installed
+if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
+    Write-Log "Chocolatey is not installed."
+    exit 1  # Chocolatey is not installed
+} else {
+    Write-Log "Chocolatey is installed."
+}
+
+function Get-ChocoPackageVersion {
+    param (
+        [string]$packageName
+    )
+    Write-Log "Getting installed version for $packageName..."
+    $package = choco list --local-only $packageName | Select-String -Pattern $packageName
+    if ($package) {
+        $version = $package -replace '.*\|', ''
+        Write-Log "Installed version of $packageName: $version"
+        return $version
+    } else {
+        Write-Log "$packageName is not installed."
+        return $null
+    }
+}
+
+function Get-LatestChocoPackageVersion {
+    param (
+        [string]$packageName
+    )
+    Write-Log "Getting latest version for $packageName from Chocolatey..."
+    $packageInfo = choco info $packageName
+    $latestVersion = $packageInfo | Select-String -Pattern "$packageName\s+(\d+(\.\d+)+)" | ForEach-Object { $_.Matches[0].Groups[1].Value }
+    if ($latestVersion) {
+        Write-Log "Latest version of $packageName: $latestVersion"
+        return $latestVersion
+    } else {
+        Write-Log "Could not retrieve latest version for $packageName from Chocolatey."
+        return $null
+    }
+}
+
+$requiredPackages = @("r.project", "rstudio", "rtools")
+$allUpToDate = $true
+
+foreach ($package in $requiredPackages) {
+    $installedVersion = Get-ChocoPackageVersion -packageName $package
+    $latestVersion = Get-LatestChocoPackageVersion -packageName $package
+
+    if (-not $installedVersion) {
+        Write-Log "$package is not installed."
+        $allUpToDate = $false
+    } elseif ([version]$installedVersion -lt [version]$latestVersion) {
+        Write-Log "$package is installed but not up-to-date. Installed version: $installedVersion, Latest version: $latestVersion"
+        $allUpToDate = $false
+    } else {
+        Write-Log "$package is up-to-date. Installed version: $installedVersion, Latest version: $latestVersion"
+    }
+}
+
+if ($allUpToDate) {
+    Write-Log "All required packages are installed and up-to-date."
+    exit 0  # Exit code 0 means the application is detected and up-to-date
+} else {
+    Write-Log "One or more required packages are not installed or not up-to-date."
+    exit 1  # Exit code 1 means the application is not detected or not up-to-date
+}
