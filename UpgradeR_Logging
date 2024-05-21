@@ -1,0 +1,84 @@
+# Script to install and upgrade R.Project, R.Studio, and Rtools via Chocolatey with logging
+
+# Define log file path
+$logFilePath = "C:\ProgramData\Microsoft\IntuneApps\UpgradeR\Upgrader.log"
+if (-not (Test-Path "C:\ProgramData\Microsoft\IntuneApps\UpgradeR")) {
+    New-Item -ItemType Directory -Path "C:\ProgramData\Microsoft\IntuneApps\UpgradeR" -Force
+}
+
+# Function to write log entries
+function Write-Log {
+    param (
+        [string]$message
+    )
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $logMessage = "$timestamp - $message"
+    Add-Content -Path $logFilePath -Value $logMessage
+    Write-Host $logMessage
+}
+
+Write-Log "Starting the installation and upgrade process."
+
+# Ensure Chocolatey is installed
+if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
+    Write-Log "Chocolatey is not installed. Installing Chocolatey..."
+    Set-ExecutionPolicy Bypass -Scope Process -Force
+    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+    iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+} else {
+    Write-Log "Chocolatey is already installed."
+}
+
+function Get-ChocoPackageVersion {
+    param (
+        [string]$packageName
+    )
+    $package = choco list --local-only $packageName | Select-String -Pattern $packageName
+    if ($package) {
+        $version = $package -replace '.*\|', ''
+        return $version
+    } else {
+        return $null
+    }
+}
+
+function Get-LatestChocoPackageVersion {
+    param (
+        [string]$packageName
+    )
+    $packageInfo = choco info $packageName
+    $latestVersion = $packageInfo | Select-String -Pattern "$packageName\s+(\d+(\.\d+)+)" | ForEach-Object { $_.Matches[0].Groups[1].Value }
+    if ($latestVersion) {
+        return $latestVersion
+    } else {
+        return $null
+    }
+}
+
+function Upgrade-Package {
+    param (
+        [string]$packageName
+    )
+    Write-Log "Upgrading $packageName..."
+    choco upgrade $packageName -y | Out-String | Write-Log
+}
+
+$requiredPackages = @("r.project", "rstudio", "rtools")
+
+foreach ($package in $requiredPackages) {
+    $installedVersion = Get-ChocoPackageVersion -packageName $package
+    $latestVersion = Get-LatestChocoPackageVersion -packageName $package
+
+    if (-not $installedVersion) {
+        Write-Log "$package is not installed. Installing..."
+        Upgrade-Package -packageName $package
+    } elseif ([version]$installedVersion -lt [version]$latestVersion) {
+        Write-Log "$package is installed but not up-to-date. Installed version: $installedVersion, Latest version: $latestVersion"
+        Upgrade-Package -packageName $package
+    } else {
+        Write-Log "$package is up-to-date. Installed version: $installedVersion, Latest version: $latestVersion"
+    }
+}
+
+Write-Log "Installation and upgrade process completed."
+exit 0
