@@ -1,0 +1,15 @@
+# Execute the manage-bde -status command and store the output in a variable
+$output = manage-bde -status
+
+# Check if the output contains 'TPM and PIN'
+if ($output -match 'TPM and PIN') {
+    # If found, print a message indicating the PIN is set
+    Write-Output 'PIN set'
+    # Exit with code 0
+    exit 0
+} else {
+    # If not found, print a message indicating the PIN is not set
+    Write-Output 'PIN not set'
+    # Exit with code 1
+    exit 1
+}
