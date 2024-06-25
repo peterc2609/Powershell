@@ -1,0 +1,24 @@
+# Define the registry path and key name
+$registryPath = "HKLM:\SOFTWARE\FCDO\Bitlocker\PINStatus"
+$keyName = "IsPinSet"
+
+# Create the registry key if it doesn't exist
+if (-not (Test-Path $registryPath)) {
+    New-Item -Path $registryPath -Force
+}
+
+# Execute the manage-bde -status command and store the output in a variable
+$output = manage-bde -status
+
+# Check if the output contains 'TPM and PIN'
+if ($output -match 'TPM and PIN') {
+    # If found, print a message indicating the PIN is set
+    Write-Output 'PIN set'
+    # Set the registry key value to 1 (PIN is set)
+    Set-ItemProperty -Path $registryPath -Name $keyName -Value 1
+} else {
+    # If not found, print a message indicating the PIN is not set
+    Write-Output 'PIN not set'
+    # Set the registry key value to 0 (PIN is not set)
+    Set-ItemProperty -Path $registryPath -Name $keyName -Value 0
+}
