@@ -117,7 +117,7 @@ Function Set_BIOS_Setting {
         # Set the BIOS setting
         $BIOSSettings.SetBIOSSetting($SettingName, $SettingValue, "<utf-16/>" + "$BIOS_PWD")
         Write_Log -Message_Type "SUCCESS" -Message "$SettingName set to $SettingValue"
-        Write-Output "$SettingName set to $SettingValue: Success"
+        Write-Output "$SettingName set to $SettingValue Success"
 
         # Write to the registry
         if (!(Test-Path $RegistryPath)) {
@@ -127,7 +127,7 @@ Function Set_BIOS_Setting {
         Write_Log -Message_Type "SUCCESS" -Message "Registry key for $SettingName set to $SettingValue"
     } catch {
         Write_Log -Message_Type "ERROR" -Message "Failed to set $SettingName to $SettingValue"
-        Write-Output "Failed to set $SettingName to $SettingValue: Failed"
+        Write-Output "Failed to set $SettingName to $SettingValue Failed"
     }
 }
 
