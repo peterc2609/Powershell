@@ -1,0 +1,23 @@
+# Check if Microphone setting exists in the BIOS and capture its value
+$microphoneSetting = Get-WmiObject -Namespace root/hp/instrumentedBIOS -Class hp_biosEnumeration | Where-Object { $_.Name -eq "Microphone" }
+
+if ($microphoneSetting) {
+    # Retrieve the current value of the Microphone BIOS setting
+    $microphoneValue = $microphoneSetting.CurrentValue
+
+    # Log the current value to be captured in remediation
+    Write-Host "Microphone BIOS setting found. Current Value: $microphoneValue"
+
+    # Example: Set a remediation status or action based on the value
+    if ($microphoneValue -eq "Disabled") {
+        Write-Host "Microphone is disabled. Triggering remediation action."
+        # Add your remediation action here if needed, such as notifying or changing the setting
+    } else {
+        Write-Host "Microphone is enabled or in a different state. No action needed."
+    }
+} else {
+    Write-Host "Microphone BIOS setting not found. No action needed."
+}
+
+# Exit with code 0 if successful, non-zero for failures
+exit 0
