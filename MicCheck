@@ -5,19 +5,18 @@ if ($microphoneSetting) {
     # Retrieve the current value of the Microphone BIOS setting
     $microphoneValue = $microphoneSetting.CurrentValue
 
-    # Log the current value to be captured in remediation
+    # Log the current value for tracking
     Write-Host "Microphone BIOS setting found. Current Value: $microphoneValue"
 
-    # Example: Set a remediation status or action based on the value
-    if ($microphoneValue -eq "Disabled") {
-        Write-Host "Microphone is disabled. Triggering remediation action."
-        # Add your remediation action here if needed, such as notifying or changing the setting
+    # Exit with 0 if enabled, 1 if not enabled
+    if ($microphoneValue -eq "Enabled") {
+        Write-Host "Microphone is enabled."
+        exit 0
     } else {
-        Write-Host "Microphone is enabled or in a different state. No action needed."
+        Write-Host "Microphone is not enabled (Disabled or another state)."
+        exit 1
     }
 } else {
-    Write-Host "Microphone BIOS setting not found. No action needed."
+    Write-Host "Microphone BIOS setting not found. No action taken."
+    exit 1
 }
-
-# Exit with code 0 if successful, non-zero for failures
-exit 0
