@@ -1,0 +1,33 @@
+# Define Azure Storage Account Information
+$storageAccountName = "your_storage_account_name"   # Replace with your storage account name
+$containerName = "your_container_name"              # Replace with your blob container name
+$storageAccountKey = "your_storage_account_key"     # Replace with your storage account key
+
+# Generate the hostname-based blob name
+$hostname = $env:COMPUTERNAME
+$blobName = "$hostname.zip"
+$blobUrl = "https://$storageAccountName.blob.core.windows.net/$containerName/$blobName"
+
+# Encode the Storage Account Key
+$storageKeyBytes = [Convert]::FromBase64String($storageAccountKey)
+$utcDate = [DateTime]::UtcNow.ToString("R")
+$stringToSign = "HEAD`n`n`n`n`n`n`n`n`n`n`n`n`n$utcDate`n/$storageAccountName/$containerName/$blobName"
+$hashBytes = [System.Security.Cryptography.HMACSHA256]::new($storageKeyBytes).ComputeHash([Text.Encoding]::UTF8.GetBytes($stringToSign))
+$authorization = "SharedKey $storageAccountName:" + [Convert]::ToBase64String($hashBytes)
+
+# Set up headers
+$headers = @{
+    "x-ms-date"      = $utcDate
+    "x-ms-version"   = "2020-10-02"
+    "Authorization"  = $authorization
+}
+
+# Try to perform a HEAD request to check if the blob exists
+try {
+    $response = Invoke-RestMethod -Uri $blobUrl -Method Head -Headers $headers -ErrorAction Stop
+    # If we get a response, the blob exists; exit with code 0 for success
+    exit 0
+} catch {
+    # If there's an error (e.g., 404), the blob does not exist; exit with code 1 for failure
+    exit 1
+}
