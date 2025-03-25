@@ -1,0 +1,467 @@
+Message-ID: <1768910526.9.1742938233133@058346e6c437>
+Subject: Exported From Confluence
+MIME-Version: 1.0
+Content-Type: multipart/related; 
+	boundary="----=_Part_8_34377378.1742938233133"
+
+------=_Part_8_34377378.1742938233133
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Content-Location: file:///C:/exported.html
+
+<html xmlns:o=3D'urn:schemas-microsoft-com:office:office'
+      xmlns:w=3D'urn:schemas-microsoft-com:office:word'
+      xmlns:v=3D'urn:schemas-microsoft-com:vml'
+      xmlns=3D'urn:w3-org-ns:HTML'>
+<head>
+    <meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dutf-8=
+">
+    <title>Executables</title>
+    <!--[if gte mso 9]>
+    <xml>
+        <o:OfficeDocumentSettings>
+            <o:TargetScreenSize>1024x640</o:TargetScreenSize>
+            <o:PixelsPerInch>72</o:PixelsPerInch>
+            <o:AllowPNG/>
+        </o:OfficeDocumentSettings>
+        <w:WordDocument>
+            <w:View>Print</w:View>
+            <w:Zoom>90</w:Zoom>
+            <w:DoNotOptimizeForBrowser/>
+        </w:WordDocument>
+    </xml>
+    <![endif]-->
+    <style>
+                <!--
+        @page Section1 {
+            size: 8.5in 11.0in;
+            margin: 1.0in;
+            mso-header-margin: .5in;
+            mso-footer-margin: .5in;
+            mso-paper-source: 0;
+        }
+
+        table {
+            border: solid 1px;
+            border-collapse: collapse;
+        }
+
+        table td, table th {
+            border: solid 1px;
+            padding: 5px;
+        }
+
+        td {
+            page-break-inside: avoid;
+        }
+
+        tr {
+            page-break-after: avoid;
+        }
+
+        div.Section1 {
+            page: Section1;
+        }
+
+        /* Confluence print stylesheet. Common to all themes for print medi=
+a */
+/* Full of !important until we improve batching for print CSS */
+
+@media print {
+    #main {
+        padding-bottom: 1em !important; /* The default padding of 6em is to=
+o much for printouts */
+    }
+
+    body {
+        font: var(--ds-font-body-small, Arial, Helvetica, FreeSans, sans-se=
+rif);
+    }
+
+    body, #full-height-container, #main, #page, #content, .has-personal-sid=
+ebar #content {
+        background: var(--ds-surface, #fff) !important;
+        color: var(--ds-text, #000) !important;
+        border: 0 !important;
+        width: 100% !important;
+        height: auto !important;
+        min-height: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        display: block !important;
+    }
+
+    a, a:link, a:visited, a:focus, a:hover, a:active {
+        color: var(--ds-text, #000);
+    }
+
+    #content h1,
+    #content h2,
+    #content h3,
+    #content h4,
+    #content h5,
+    #content h6 {
+        page-break-after: avoid;
+    }
+
+    pre {
+        font: var(--ds-font-code, Monaco, "Courier New", monospace);
+    }
+
+    #header,
+    .aui-header-inner,
+    #navigation,
+    #sidebar,
+    .sidebar,
+    #personal-info-sidebar,
+    .ia-fixed-sidebar,
+    .page-actions,
+    .navmenu,
+    .ajs-menu-bar,
+    .noprint,
+    .inline-control-link,
+    .inline-control-link a,
+    a.show-labels-editor,
+    .global-comment-actions,
+    .comment-actions,
+    .quick-comment-container,
+    #addcomment {
+        display: none !important;
+    }
+
+    /* CONF-28544 cannot print multiple pages in IE */
+    #splitter-content {
+        position: relative !important;
+    }
+
+    .comment .date::before {
+        content: none !important; /* remove middot for print view */
+    }
+
+    h1.pagetitle img {
+        height: auto;
+        width: auto;
+    }
+
+    .print-only {
+        display: block;
+    }
+
+    #footer {
+        position: relative !important; /* CONF-17506 Place the footer at en=
+d of the content */
+        margin: 0;
+        padding: 0;
+        background: none;
+        clear: both;
+    }
+
+    #poweredby {
+        border-top: none;
+        background: none;
+    }
+
+    #poweredby li.print-only {
+        display: list-item;
+        font-style: italic;
+    }
+
+    #poweredby li.noprint {
+        display: none;
+    }
+
+    /* no width controls in print */
+    .wiki-content .table-wrap,
+    .wiki-content p,
+    .panel .codeContent,
+    .panel .codeContent pre,
+    .image-wrap {
+        overflow: visible !important;
+    }
+
+    /* TODO - should this work? */
+    #children-section,
+    #comments-section .comment,
+    #comments-section .comment .comment-body,
+    #comments-section .comment .comment-content,
+    #comments-section .comment p {
+        page-break-inside: avoid;
+    }
+
+    #page-children a {
+        text-decoration: none;
+    }
+
+    /**
+     hide twixies
+
+     the specificity here is a hack because print styles
+     are getting loaded before the base styles. */
+    #comments-section.pageSection .section-header,
+    #comments-section.pageSection .section-title,
+    #children-section.pageSection .section-header,
+    #children-section.pageSection .section-title,
+    .children-show-hide {
+        padding-left: 0;
+        margin-left: 0;
+    }
+
+    .children-show-hide.icon {
+        display: none;
+    }
+
+    /* personal sidebar */
+    .has-personal-sidebar #content {
+        margin-right: 0px;
+    }
+
+    .has-personal-sidebar #content .pageSection {
+        margin-right: 0px;
+    }
+
+    .no-print, .no-print * {
+        display: none !important;
+    }
+}
+-->
+    </style>
+</head>
+<body>
+    <h1>Executables</h1>
+    <div class=3D"Section1">
+        <ol start=3D"1">
+<li>
+<p><strong>Default Rule: All files</strong></p>
+<ul>
+<li>
+<p><strong>Description</strong>: Allows members of the local Administrators=
+ group to run all applications.</p></li>
+<li>
+<p><strong>Reason</strong>: Administrators need unrestricted access to mana=
+ge the system.</p></li>
+</ul></li>
+<li>
+<p><strong>All files located in the Program Files folder</strong></p>
+<ul>
+<li>
+<p><strong>Description</strong>: Allows members of the Everyone group to ru=
+n applications that are located in the Program Files folder.</p></li>
+<li>
+<p><strong>Reason</strong>: Ensures that only trusted applications installe=
+d in the Program Files directory can be executed by all users.</p></li>
+</ul></li>
+<li>
+<p><strong>All files located in the Windows folder</strong></p>
+<ul>
+<li>
+<p><strong>Description</strong>: Allows members of the Everyone group to ru=
+n applications that are located in the Windows folder.</p></li>
+<li>
+<p><strong>Reason</strong>: Ensures that essential system applications can =
+be executed by all users.</p></li>
+<li>
+<p><strong>Exceptions</strong>:</p>
+<ul>
+<li>
+<p><strong>%SYSTEM32%\com\dmp\</strong>*: Prevents execution of files in th=
+e COM+ dump directory, which could contain sensitive data.</p></li>
+<li>
+<p><em><strong>%SYSTEM32%\drivers\driverdata</strong>:</em> and <strong>%SY=
+STEM32%\drivers\driverdata\*</strong>*: Protects driver data files from una=
+uthorized execution.</p></li>
+<li>
+<p><strong>%SYSTEM32%\fxstmp\</strong>*: Prevents execution of temporary fa=
+x files.</p></li>
+<li>
+<p><em><strong>%SYSTEM32%\microsoft\crypto\rsa\machinekeys</strong>:</em> a=
+nd <strong>%SYSTEM32%\microsoft\crypto\rsa\machinekeys\*</strong>*: Protect=
+s cryptographic keys from unauthorized access.</p></li>
+<li>
+<p><strong>%SYSTEM32%\spool\drivers\color\</strong>*: Prevents execution of=
+ color profiles used by the print spooler.</p></li>
+<li>
+<p><strong>%SYSTEM32%\spool\printers\</strong>*: Protects print spooler fil=
+es.</p></li>
+<li>
+<p><strong>%SYSTEM32%\spool\servers\</strong>*: Protects print server files=
+.</p></li>
+<li>
+<p><em><strong>%SYSTEM32%\tasks\</strong></em> and <strong>%SYSTEM32%\tasks=
+_migrated\*</strong>*: Prevents execution of scheduled tasks.</p></li>
+<li>
+<p><strong>%WINDIR%\debug\</strong>*: Protects debug files.</p></li>
+<li>
+<p><strong>%WINDIR%\Debug\wia\</strong>*: Protects Windows Image Acquisitio=
+n debug files.</p></li>
+<li>
+<p><strong>%WINDIR%\pchealth\ERRORREP\</strong>*: Protects error reporting =
+files.</p></li>
+<li>
+<p><strong>%WINDIR%\registration\</strong>*: Protects COM+ registration fil=
+es.</p></li>
+<li>
+<p><strong>%WINDIR%\SysWOW64\com\dmp\</strong>*: Prevents execution of 32-b=
+it COM+ dump files.</p></li>
+<li>
+<p><strong>%WINDIR%\SysWOW64\FxsTmp\</strong>*: Prevents execution of 32-bi=
+t temporary fax files.</p></li>
+<li>
+<p><strong>%WINDIR%\SysWOW64\Tasks\</strong>*: Prevents execution of 32-bit=
+ scheduled tasks.</p></li>
+<li>
+<p><strong>%WINDIR%\tasks\</strong>*: Prevents execution of scheduled tasks=
+.</p></li>
+<li>
+<p><strong>%WINDIR%\temp\</strong>*: Prevents execution of temporary files.=
+</p></li>
+<li>
+<p><em><strong>%WINDIR%\tracing</strong>:</em> and <strong>%WINDIR%\tracing=
+\*</strong>*: Protects tracing files used for diagnostics.</p></li>
+</ul></li>
+</ul></li>
+<li>
+<p><strong>Allow all Products and Binaries from Microsoft</strong></p>
+<ul>
+<li>
+<p><strong>Description</strong>: Allows all products and binaries signed by=
+ Microsoft Corporation.</p></li>
+<li>
+<p><strong>Reason</strong>: Trust in Microsoft's digital signatures ensures=
+ that only verified applications are allowed.</p></li>
+<li>
+<p><strong>Exceptions</strong>:</p>
+<ul>
+<li>
+<p><strong>CIPHER.EXE</strong>: This tool is used for encrypting/decrypting=
+ data, which could be misused if allowed to run by everyone.</p></li>
+<li>
+<p><strong>FTP.EXE</strong>: The FTP client could be used to transfer files=
+ inappropriately.</p></li>
+<li>
+<p><strong>INSTALLUTIL.EXE</strong>: This utility installs and uninstalls s=
+erver resources by executing installer components in specified assemblies.<=
+/p></li>
+<li>
+<p><strong>MSBUILD.EXE</strong>: The Microsoft Build Engine could be used t=
+o compile and build projects, potentially leading to unauthorized code exec=
+ution.</p></li>
+<li>
+<p><strong>MSHTA.EXE</strong>: The Microsoft HTML Application Host could be=
+ used to execute malicious scripts.</p></li>
+<li>
+<p><strong>NET.EXE and NET1.EXE</strong>: These commands manage network res=
+ources, which could be misused.</p></li>
+<li>
+<p><strong>NETSH.EXE</strong>: The Network Shell utility could be used to c=
+onfigure and monitor network settings.</p></li>
+<li>
+<p><strong>POWERSHELL_ISE.EXE</strong>: The PowerShell Integrated Scripting=
+ Environment could be used to execute scripts.</p></li>
+<li>
+<p><strong>PRESENTATIONHOST.EXE</strong>: This executable hosts XAML browse=
+r applications.</p></li>
+<li>
+<p><strong>REG.EXE, REGEDT32.EXE, REGEDIT.EXE, REGINI.EXE</strong>: These r=
+egistry editors could be used to modify system settings.</p></li>
+<li>
+<p><strong>RUNAS.EXE</strong>: This command allows a user to run specific t=
+ools and programs with different permissions.</p></li>
+<li>
+<p>*<strong>SCRIPT.EXE</strong>: This wildcard entry covers various script =
+executables that could be used to run scripts.</p></li>
+<li>
+<p><strong>WMIC.EXE</strong>: The Windows Management Instrumentation Comman=
+d-line could be used to manage system settings.</p></li>
+</ul></li>
+</ul></li>
+<li>
+<p><strong>Allow all Products and Binaries from HashiCorp</strong></p>
+<ul>
+<li>
+<p><strong>Description</strong>: Allows all products and binaries signed by=
+ HashiCorp, Inc.</p></li>
+<li>
+<p><strong>Reason</strong>: Trust in HashiCorp's digital signatures ensures=
+ that only verified applications are allowed.</p></li>
+</ul></li>
+<li>
+<p><strong>Allow all Products and Binaries signed with OSPREY_CODESIGNER</s=
+trong></p>
+<ul>
+<li>
+<p><strong>Description</strong>: Allows all products and binaries signed wi=
+th OSPREY_CODESIGNER.</p></li>
+<li>
+<p><strong>Reason</strong>: Trust in OSPREY_CODESIGNER's digital signatures=
+ ensures that only verified applications are allowed.</p></li>
+</ul></li>
+<li>
+<p><strong>Allow all Products and Binaries signed with OSPREY_HASHICORP_COD=
+ESIGNER</strong></p>
+<ul>
+<li>
+<p><strong>Description</strong>: Allows all products and binaries signed wi=
+th OSPREY_HASHICORP_CODESIGNER.</p></li>
+<li>
+<p><strong>Reason</strong>: Trust in OSPREY_HASHICORP_CODESIGNER's digital =
+signatures ensures that only verified applications are allowed.</p></li>
+</ul></li>
+<li>
+<p><strong>Allow all Products and Binaries from Cisco Webex LLC</strong></p=
+>
+<ul>
+<li>
+<p><strong>Description</strong>: Allows all products and binaries signed by=
+ Cisco Webex LLC.</p></li>
+<li>
+<p><strong>Reason</strong>: Trust in Cisco Webex LLC's digital signatures e=
+nsures that only verified applications are allowed.</p></li>
+</ul></li>
+<li>
+<p><strong>Allow all Products and Binaries from Cisco Systems Inc.</strong>=
+</p>
+<ul>
+<li>
+<p><strong>Description</strong>: Allows all products and binaries signed by=
+ Cisco Systems Inc.</p></li>
+<li>
+<p><strong>Reason</strong>: Trust in Cisco Systems Inc.'s digital signature=
+s ensures that only verified applications are allowed.</p></li>
+</ul></li>
+<li>
+<p><strong>Additional allowed path: %OSDRIVE%\PROGRAMDATA\MICROSOFT\WINDOWS=
+ DEFENDER\PLATFORM\</strong>*</p>
+<ul>
+<li>
+<p><strong>Description</strong>: Allows Everyone to execute from %OSDRIVE%\=
+PROGRAMDATA\MICROSOFT\WINDOWS DEFENDER\PLATFORM\*.</p></li>
+<li>
+<p><strong>Reason</strong>: Ensures that applications related to Windows De=
+fender can be executed by all users.</p></li>
+</ul></li>
+<li>
+<p><strong>C:\ProgramData\Microsoft\</strong>*</p>
+<ul>
+<li>
+<p><strong>Description</strong>: Allows applications located in the Program=
+Data\Microsoft directory.</p></li>
+<li>
+<p><strong>Reason</strong>: Ensures that applications related to Microsoft =
+can be executed by all users.</p></li>
+</ul></li>
+<li>
+<p><strong>All files located in ProgramData\chocolatey\bin</strong></p>
+<ul>
+<li>
+<p><strong>Description</strong>: Allows members of the Everyone group to ru=
+n applications that are located in the ProgramData\Chocolatey\bin folder.</=
+p></li>
+<li>
+<p><strong>Reason</strong>: Ensures that applications installed by Chocolat=
+ey can be executed by all users.</p></li>
+</ul></li>
+</ol>
+    </div>
+</body>
+</html>
+------=_Part_8_34377378.1742938233133--
