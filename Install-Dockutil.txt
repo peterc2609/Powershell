@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# Path to install
+installPath="/usr/local/bin/dockutil"
+
+# Azure Blob URL
+dockutilURL="https://<yourstorage>.blob.core.windows.net/<container>/dockutil"
+
+# Download and install
+if [ ! -f "$installPath" ]; then
+    echo "Downloading dockutil from Azure Blob Storage..."
+    curl -L "$dockutilURL" -o "$installPath"
+    chmod +x "$installPath"
+    echo "dockutil installed to $installPath"
+else
+    echo "dockutil already installed"
+fi
+
+exit 0
