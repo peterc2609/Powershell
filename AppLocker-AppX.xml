@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RuleCollection Type="Appx" EnforcementMode="Enabled">
+  <FilePublisherRule Id="5b2a8477-5617-4653-badd-81ee23fc2bb6" Name="All signed packaged apps" Description="Allows members of the Everyone group to run packaged apps that are signed." UserOrGroupSid="S-1-1-0" Action="Allow">
+    <Conditions>
+      <FilePublisherCondition PublisherName="*" ProductName="*" BinaryName="*">
+        <BinaryVersionRange LowSection="0.0.0.0" HighSection="*" />
+      </FilePublisherCondition>
+    </Conditions>
+    <Exceptions>
+      <FilePublisherCondition PublisherName="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US" ProductName="Microsoft.DesktopAppInstaller" BinaryName="*">
+        <BinaryVersionRange LowSection="0.0.0.0" HighSection="*" />
+      </FilePublisherCondition>
+      <FilePublisherCondition PublisherName="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US" ProductName="Microsoft.Getstarted" BinaryName="*">
+        <BinaryVersionRange LowSection="0.0.0.0" HighSection="*" />
+      </FilePublisherCondition>
+      <FilePublisherCondition PublisherName="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US" ProductName="Microsoft.MicrosoftOfficeHub" BinaryName="*">
+        <BinaryVersionRange LowSection="17.4218.0.0" HighSection="*" />
+      </FilePublisherCondition>
+      <FilePublisherCondition PublisherName="CN=Skype Software Sarl, O=Microsoft Corporation, L=Luxembourg, S=Luxembourg, C=LU" ProductName="Microsoft.SkypeApp" BinaryName="*">
+        <BinaryVersionRange LowSection="3.2.0.0" HighSection="*" />
+      </FilePublisherCondition>
+      <FilePublisherCondition PublisherName="CN=Microsoft Windows, O=Microsoft Corporation, L=Redmond, S=Washington, C=US" ProductName="Microsoft.WindowsFeedback" BinaryName="*">
+        <BinaryVersionRange LowSection="10.0.0.0" HighSection="*" />
+      </FilePublisherCondition>
+      <FilePublisherCondition PublisherName="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US" ProductName="Microsoft.WindowsStore" BinaryName="*">
+        <BinaryVersionRange LowSection="0.0.0.0" HighSection="*" />
+      </FilePublisherCondition>
+    </Exceptions>
+  </FilePublisherRule>
+</RuleCollection>
