@@ -3,21 +3,56 @@
 # Variables
 pkgURL="https://<yourstorage>.blob.core.windows.net/<container>/dockutil.pkg"  # ← Replace this
 tempPkg="/tmp/dockutil.pkg"
+logFile="/var/log/dockutil-install.log"
+
+# Log function
+log() {
+    echo "$(date "+%Y-%m-%d %H:%M:%S") $1" | tee -a "$logFile"
+}
+
+log "Starting dockutil install script..."
 
 # Check if dockutil is already installed
-if [ ! -f "/usr/local/bin/dockutil" ]; then
-    echo "Downloading dockutil.pkg from Azure..."
-    curl -L "$pkgURL" -o "$tempPkg"
-
-    echo "Installing dockutil..."
-    sudo installer -pkg "$tempPkg" -target /
-
-    echo "Cleaning up..."
-    rm -f "$tempPkg"
-
-    echo "dockutil installed successfully."
-else
-    echo "dockutil already installed."
+if [ -f "/usr/local/bin/dockutil" ]; then
+    log "dockutil already installed. Exiting."
+    exit 0
 fi
 
+# Download the package
+log "Downloading dockutil.pkg from Azure..."
+curl -L "$pkgURL" -o "$tempPkg"
+curlStatus=$?
+
+if [ $curlStatus -ne 0 ]; then
+    log "ERROR: Failed to download dockutil.pkg (curl exit code $curlStatus)"
+    exit 1
+fi
+
+# Check if download was successful
+if [ ! -f "$tempPkg" ]; then
+    log "ERROR: dockutil.pkg not found at $tempPkg after download."
+    exit 1
+fi
+
+# Optional: verify it's a .pkg file
+if ! file "$tempPkg" | grep -q "xar archive"; then
+    log "ERROR: Downloaded file is not a valid .pkg file."
+    exit 1
+fi
+
+# Install the package
+log "Installing dockutil..."
+sudo installer -pkg "$tempPkg" -target /
+installStatus=$?
+
+if [ $installStatus -ne 0 ]; then
+    log "ERROR: Installer failed with exit code $installStatus"
+    exit 1
+fi
+
+# Cleanup
+log "Cleaning up downloaded pkg..."
+rm -f "$tempPkg"
+
+log "dockutil installation completed successfully."
 exit 0
