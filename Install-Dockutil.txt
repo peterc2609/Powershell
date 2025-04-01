@@ -1,19 +1,23 @@
 #!/bin/bash
 
-# Path to install
-installPath="/usr/local/bin/dockutil"
+# Variables
+pkgURL="https://<yourstorage>.blob.core.windows.net/<container>/dockutil.pkg"  # ← Replace this
+tempPkg="/tmp/dockutil.pkg"
 
-# Azure Blob URL
-dockutilURL="https://<yourstorage>.blob.core.windows.net/<container>/dockutil"
+# Check if dockutil is already installed
+if [ ! -f "/usr/local/bin/dockutil" ]; then
+    echo "Downloading dockutil.pkg from Azure..."
+    curl -L "$pkgURL" -o "$tempPkg"
 
-# Download and install
-if [ ! -f "$installPath" ]; then
-    echo "Downloading dockutil from Azure Blob Storage..."
-    curl -L "$dockutilURL" -o "$installPath"
-    chmod +x "$installPath"
-    echo "dockutil installed to $installPath"
+    echo "Installing dockutil..."
+    sudo installer -pkg "$tempPkg" -target /
+
+    echo "Cleaning up..."
+    rm -f "$tempPkg"
+
+    echo "dockutil installed successfully."
 else
-    echo "dockutil already installed"
+    echo "dockutil already installed."
 fi
 
 exit 0
