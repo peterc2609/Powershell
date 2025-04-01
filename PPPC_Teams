@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+ "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>PayloadContent</key>
+    <array>
+      <dict>
+        <key>PayloadDisplayName</key>
+        <string>PPPC for Microsoft Teams</string>
+        <key>PayloadIdentifier</key>
+        <string>com.example.teams.pppc</string>
+        <key>PayloadType</key>
+        <string>com.apple.TCC.configuration-profile-policy</string>
+        <key>PayloadUUID</key>
+        <string>8E2A3E1C-68D9-4442-9C93-2E9A1C4028C6</string>
+        <key>PayloadVersion</key>
+        <integer>1</integer>
+        <key>Services</key>
+        <dict>
+          <key>Camera</key>
+          <dict>
+            <key>Authorization</key>
+            <string>Allow</string>
+            <key>Identifier</key>
+            <string>com.microsoft.teams</string>
+            <key>IdentifierType</key>
+            <string>bundleID</string>
+            <key>CodeRequirement</key>
+            <string>identifier "com.microsoft.teams" and anchor apple generic</string>
+          </dict>
+          <key>Microphone</key>
+          <dict>
+            <key>Authorization</key>
+            <string>Allow</string>
+            <key>Identifier</key>
+            <string>com.microsoft.teams</string>
+            <key>IdentifierType</key>
+            <string>bundleID</string>
+            <key>CodeRequirement</key>
+            <string>identifier "com.microsoft.teams" and anchor apple generic</string>
+          </dict>
+          <key>ScreenCapture</key>
+          <dict>
+            <key>Authorization</key>
+            <string>AllowStandardUser</string>
+            <key>Identifier</key>
+            <string>com.microsoft.teams</string>
+            <key>IdentifierType</key>
+            <string>bundleID</string>
+            <key>CodeRequirement</key>
+            <string>identifier "com.microsoft.teams" and anchor apple generic</string>
+          </dict>
+        </dict>
+      </dict>
+    </array>
+    <key>PayloadDisplayName</key>
+    <string>Teams PPPC</string>
+    <key>PayloadIdentifier</key>
+    <string>com.example.teams.pppc-profile</string>
+    <key>PayloadOrganization</key>
+    <string>FCDO</string>
+    <key>PayloadRemovalDisallowed</key>
+    <false/>
+    <key>PayloadType</key>
+    <string>Configuration</string>
+    <key>PayloadUUID</key>
+    <string>BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB</string>
+    <key>PayloadVersion</key>
+    <integer>1</integer>
+  </dict>
+</plist>
