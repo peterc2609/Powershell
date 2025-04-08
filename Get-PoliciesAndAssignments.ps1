@@ -1,30 +1,25 @@
-# Define the output CSV file path
-$OutputCsvPath = "Intune_Policies_Assignments.csv"
+# Output path
+$OutputCsvPath = "Filtered_OSPREY_IntunePolicies_Assignments.csv"
 
-# Initialize an array to hold policy assignment details
-$policyAssignments = @()
-
-# Function to retrieve group display name by Group ID
+# Helper: Get group name
 function Get-GroupName($groupId) {
     try {
-        $group = Get-MgGroup -GroupId $groupId
-        return $group.DisplayName
+        (Get-MgGroup -GroupId $groupId).DisplayName
     } catch {
-        return "Group Not Found"
+        "Group Not Found"
     }
 }
 
-# Function to retrieve filter display name by Filter ID
+# Helper: Get filter name
 function Get-FilterName($filterId) {
     try {
-        $filter = Get-MgDeviceManagementAssignmentFilter -FilterId $filterId
-        return $filter.DisplayName
+        (Get-MgDeviceManagementAssignmentFilter -FilterId $filterId).DisplayName
     } catch {
-        return "Filter Not Found"
+        "Filter Not Found"
     }
 }
 
-# Array of policy types to retrieve
+# Define policy types to fetch
 $policyTypes = @(
     @{ Name = "Device Configuration Profiles"; Uri = "deviceManagement/deviceConfigurations" },
     @{ Name = "Administrative Templates"; Uri = "deviceManagement/groupPolicyConfigurations" },
@@ -33,28 +28,39 @@ $policyTypes = @(
     @{ Name = "Endpoint Security Policies"; Uri = "deviceManagement/intents" }
 )
 
-# Iterate through each policy type
-foreach ($policyType in $policyTypes) {
-    $policies = Invoke-MgGraphRequest -Method GET -Uri "https://graph.microsoft.com/beta/$($policyType.Uri)?`$expand=assignments"
+# Store all results
+$policyAssignments = @()
 
-    foreach ($policy in $policies.value) {
+# Loop through each policy type
+foreach ($policyType in $policyTypes) {
+    $uri = "https://graph.microsoft.com/beta/$($policyType.Uri)?`$expand=assignments"
+    $response = Invoke-MgGraphRequest -Method GET -Uri $uri
+
+    foreach ($policy in $response.value) {
+        # Some Settings Catalog policies may not have displayName directly
+        $displayName = if ($policy.displayName) { $policy.displayName } elseif ($policy.name) { $policy.name } else { "Unknown Name" }
+
+        # Skip policies that don't match the OSPREY filter
+        if ($displayName -notmatch "^\*?OSPREY") { continue }
+
+        # Filter to Windows platform only (platform 1 = Windows10AndLater)
+        if ($policy.PSObject.Properties.Name -contains "platform") {
+            if ($policy.platform -ne 1) { continue }
+        }
+
         foreach ($assignment in $policy.assignments) {
-            # Determine the assignment type (Include or Exclude)
             $assignmentType = if ($assignment.target."@odata.type" -eq "#microsoft.graph.exclusionGroupAssignmentTarget") { "Exclude" } else { "Include" }
 
-            # Retrieve group information
-            $groupId = $assignment.target.groupId
-            $groupName = Get-GroupName $groupId
+            $groupId    = $assignment.target.groupId
+            $groupName  = if ($groupId) { Get-GroupName $groupId } else { "None" }
 
-            # Retrieve filter information
-            $filterId = $assignment.target.deviceAndAppManagementAssignmentFilterId
-            $filterName = Get-FilterName $filterId
-            $filterType = $assignment.target.deviceAndAppManagementAssignmentFilterType
+            $filterId   = $assignment.target.deviceAndAppManagementAssignmentFilterId
+            $filterName = if ($filterId) { Get-FilterName $filterId } else { "None" }
+            $filterType = if ($filterId) { $assignment.target.deviceAndAppManagementAssignmentFilterType } else { "None" }
 
-            # Add the collected information to the policyAssignments array
             $policyAssignments += [PSCustomObject]@{
                 PolicyType     = $policyType.Name
-                PolicyName     = $policy.displayName
+                PolicyName     = $displayName
                 PolicyId       = $policy.id
                 AssignmentType = $assignmentType
                 GroupId        = $groupId
@@ -67,7 +73,6 @@ foreach ($policyType in $policyTypes) {
     }
 }
 
-# Export the collected data to a CSV file
+# Export
 $policyAssignments | Export-Csv -Path $OutputCsvPath -NoTypeInformation
-
-Write-Output "Export completed. The data is available in: $OutputCsvPath"
+Write-Host "Done. Output saved to: $OutputCsvPath"
