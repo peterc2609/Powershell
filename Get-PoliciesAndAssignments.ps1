@@ -1,60 +1,68 @@
 # Define the output CSV file path
-$OutputCsvPath = "Windows_IntunePolicies_Assignments.csv"
-
-# Retrieve all device configuration policies
-$allPolicies = Get-MgDeviceManagementDeviceConfiguration -All
-
-# Filter policies to include only those targeting Windows (Platform 1 is Windows10AndLater)
-$windowsPolicies = $allPolicies | Where-Object { $_.Platform -eq 1 }
+$OutputCsvPath = "Intune_Policies_Assignments.csv"
 
 # Initialize an array to hold policy assignment details
 $policyAssignments = @()
 
-# Iterate through each Windows policy to retrieve its assignments
-foreach ($policy in $windowsPolicies) {
-    $assignments = Get-MgDeviceManagementDeviceConfigurationAssignment -DeviceConfigurationId $policy.Id
+# Function to retrieve group display name by Group ID
+function Get-GroupName($groupId) {
+    try {
+        $group = Get-MgGroup -GroupId $groupId
+        return $group.DisplayName
+    } catch {
+        return "Group Not Found"
+    }
+}
 
-    foreach ($assignment in $assignments) {
-        # Determine the assignment type (Include or Exclude)
-        $assignmentType = if ($assignment.Target."@odata.type" -eq "#microsoft.graph.exclusionGroupAssignmentTarget") { "Exclude" } else { "Include" }
+# Function to retrieve filter display name by Filter ID
+function Get-FilterName($filterId) {
+    try {
+        $filter = Get-MgDeviceManagementAssignmentFilter -FilterId $filterId
+        return $filter.DisplayName
+    } catch {
+        return "Filter Not Found"
+    }
+}
 
-        # Retrieve the group ID and name
-        $groupId = $assignment.Target.GroupId
-        $groupName = "Unknown Group"
+# Array of policy types to retrieve
+$policyTypes = @(
+    @{ Name = "Device Configuration Profiles"; Uri = "deviceManagement/deviceConfigurations" },
+    @{ Name = "Administrative Templates"; Uri = "deviceManagement/groupPolicyConfigurations" },
+    @{ Name = "Settings Catalog Policies"; Uri = "deviceManagement/configurationPolicies" },
+    @{ Name = "Compliance Policies"; Uri = "deviceManagement/deviceCompliancePolicies" },
+    @{ Name = "Endpoint Security Policies"; Uri = "deviceManagement/intents" }
+)
 
-        if ($groupId) {
-            try {
-                $group = Get-MgGroup -GroupId $groupId
-                $groupName = $group.DisplayName
-            } catch {
-                $groupName = "Group Not Found"
+# Iterate through each policy type
+foreach ($policyType in $policyTypes) {
+    $policies = Invoke-MgGraphRequest -Method GET -Uri "https://graph.microsoft.com/beta/$($policyType.Uri)?`$expand=assignments"
+
+    foreach ($policy in $policies.value) {
+        foreach ($assignment in $policy.assignments) {
+            # Determine the assignment type (Include or Exclude)
+            $assignmentType = if ($assignment.target."@odata.type" -eq "#microsoft.graph.exclusionGroupAssignmentTarget") { "Exclude" } else { "Include" }
+
+            # Retrieve group information
+            $groupId = $assignment.target.groupId
+            $groupName = Get-GroupName $groupId
+
+            # Retrieve filter information
+            $filterId = $assignment.target.deviceAndAppManagementAssignmentFilterId
+            $filterName = Get-FilterName $filterId
+            $filterType = $assignment.target.deviceAndAppManagementAssignmentFilterType
+
+            # Add the collected information to the policyAssignments array
+            $policyAssignments += [PSCustomObject]@{
+                PolicyType     = $policyType.Name
+                PolicyName     = $policy.displayName
+                PolicyId       = $policy.id
+                AssignmentType = $assignmentType
+                GroupId        = $groupId
+                GroupName      = $groupName
+                FilterId       = $filterId
+                FilterName     = $filterName
+                FilterType     = $filterType
             }
-        }
-
-        # Retrieve any assignment filters applied
-        $filterId = $assignment.Target.DeviceAndAppManagementAssignmentFilterId
-        $filterType = $assignment.Target.DeviceAndAppManagementAssignmentFilterType
-        $filterName = "No Filter"
-
-        if ($filterId) {
-            try {
-                $filter = Get-MgDeviceManagementAssignmentFilter -FilterId $filterId
-                $filterName = $filter.DisplayName
-            } catch {
-                $filterName = "Filter Not Found"
-            }
-        }
-
-        # Add the collected information to the policyAssignments array
-        $policyAssignments += [PSCustomObject]@{
-            PolicyName     = $policy.DisplayName
-            PolicyId       = $policy.Id
-            AssignmentType = $assignmentType
-            GroupId        = $groupId
-            GroupName      = $groupName
-            FilterId       = $filterId
-            FilterName     = $filterName
-            FilterType     = $filterType
         }
     }
 }
