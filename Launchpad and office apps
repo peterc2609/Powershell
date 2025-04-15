@@ -1,0 +1,24 @@
+# --- Add Launchpad and Microsoft apps to the Dock ---
+log "Adding key apps to the Dock if not already present..."
+
+appsToPin=(
+    "/System/Applications/Launchpad.app"
+    "/Applications/Microsoft Edge.app"
+    "/Applications/Microsoft Outlook.app"
+    "/Applications/Microsoft Teams.app"
+)
+
+for appPath in "${appsToPin[@]}"; do
+    appName=$(basename "$appPath" .app)
+    
+    if [ -d "$appPath" ]; then
+        if ! "$dockutil" --list "$userHome" | grep -q "$appName"; then
+            log "Pinning $appName to the Dock..."
+            "$dockutil" --add "$appPath" --no-restart "$userHome" >> "$logFile" 2>&1
+        else
+            log "$appName is already pinned to the Dock."
+        fi
+    else
+        log "⚠️ $appName not found at $appPath — skipping."
+    fi
+done
