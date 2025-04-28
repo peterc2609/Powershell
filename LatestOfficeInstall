@@ -8,8 +8,18 @@ $ErrorActionPreference = 'Stop'
 
 # Define variables
 $AppName = [System.IO.Path]::GetFileNameWithoutExtension($PSCommandPath)
-$LogFolder = "C:\ProgramData\Microsoft\IntuneApps\$AppName"
-$null = New-Item -ItemType Directory -Path $LogFolder -Force -ErrorAction SilentlyContinue
+$RootLogFolder = "C:\ProgramData\Microsoft\IntuneApps"
+$LogFolder = Join-Path $RootLogFolder $AppName
+
+# Ensure root IntuneApps folder exists
+if (!(Test-Path -Path $RootLogFolder)) {
+    New-Item -Path $RootLogFolder -ItemType Directory -Force | Out-Null
+}
+
+# Ensure app-specific log folder exists
+if (!(Test-Path -Path $LogFolder)) {
+    New-Item -Path $LogFolder -ItemType Directory -Force | Out-Null
+}
 
 $LogFile = Join-Path $LogFolder "M365InstallLog_$(Get-Date -Format 'yyyyMMdd_HHmmss').log"
 
