@@ -1,7 +1,7 @@
 # Variables
-$StorageAccountName = "yourStorageAccountName"  # <-- CHANGE THIS
-$ContainerName = "yourContainerName"            # <-- CHANGE THIS
-$SasToken = "?yourSasToken"                     # <-- CHANGE THIS (starts with ?sv=...)
+$StorageAccountName = "yourStorageAccountName"  # <-- CHANGE
+$ContainerName = "yourContainerName"            # <-- CHANGE
+$SasToken = "?yourSasToken"                     # <-- CHANGE
 $WallpaperFolder = "C:\OspreyWallpaper"
 $WallpaperFileName = "1.jpg"
 $WallpaperPath = Join-Path -Path $WallpaperFolder -ChildPath $WallpaperFileName
@@ -48,7 +48,6 @@ $DefaultUserNTUser = Join-Path -Path $DefaultUserProfile -ChildPath "NTUSER.DAT"
 $TempHiveName = "DefaultTempHive"
 
 if (Test-Path $DefaultUserNTUser) {
-    # Load the Default User NTUSER.DAT if not already loaded
     if (-not (Get-PSDrive -Name HKU -ErrorAction SilentlyContinue)) {
         New-PSDrive -Name HKU -PSProvider Registry -Root HKEY_USERS | Out-Null
     }
@@ -63,13 +62,39 @@ if (Test-Path $DefaultUserNTUser) {
     }
 }
 
-# STEP 2: If someone is already logged in, update HKCU
-try {
-    if (Test-Path "HKCU:\Control Panel\Desktop") {
-        Set-WallpaperRegistry -HivePath "HKCU:"
-        # Refresh user desktop
-        rundll32.exe user32.dll, UpdatePerUserSystemParameters ,1 ,True
+# STEP 2: If someone is logged in, set their wallpaper correctly
+
+function Set-LoggedOnUserWallpaper {
+    try {
+        # Find explorer.exe owner
+        $Explorer = Get-Process explorer -ErrorAction SilentlyContinue | Select-Object -First 1
+        if ($Explorer) {
+            $SessionId = $Explorer.SessionId
+            $UserName = (Get-CimInstance Win32_SessionProcess | Where-Object { $_.SessionId -eq $SessionId -and $_.Name -eq 'explorer.exe' }).Antecedent | ForEach-Object {
+                ($_ -split '"')[1]
+            }
+
+            if ($UserName) {
+                Write-Output "Detected logged-in user: $UserName"
+
+                # Create a script block to run as user
+                $ScriptBlock = {
+                    Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name Wallpaper -Value "C:\OspreyWallpaper\1.jpg"
+                    Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name WallpaperStyle -Value "10"
+                    rundll32.exe user32.dll, UpdatePerUserSystemParameters ,1 ,True
+                }
+
+                # Run in user's session
+                Invoke-Command -ScriptBlock $ScriptBlock
+            } else {
+                Write-Warning "Could not detect username from explorer.exe"
+            }
+        } else {
+            Write-Warning "No explorer.exe process found, likely no user logged in."
+        }
+    } catch {
+        Write-Warning "Failed to detect logged-in user wallpaper: $_"
     }
-} catch {
-    Write-Warning "HKCU not available, skipping current user wallpaper."
 }
+
+Set-LoggedOnUserWallpaper
