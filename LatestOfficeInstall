@@ -1,0 +1,68 @@
+[CmdletBinding()]
+param(
+  [Parameter(Mandatory = $true)][String]$ConfigurationXMLFile = "configuration.xml"
+)
+
+$VerbosePreference = 'Continue'
+$ErrorActionPreference = 'Stop'
+
+# Define variables
+$AppName = [System.IO.Path]::GetFileNameWithoutExtension($PSCommandPath)
+$LogFolder = "C:\ProgramData\Microsoft\IntuneApps\$AppName"
+$null = New-Item -ItemType Directory -Path $LogFolder -Force -ErrorAction SilentlyContinue
+
+$LogFile = Join-Path $LogFolder "M365InstallLog_$(Get-Date -Format 'yyyyMMdd_HHmmss').log"
+
+# Create Event Source if it doesn't exist
+if (-not [System.Diagnostics.EventLog]::SourceExists($AppName)) {
+  New-EventLog -LogName Application -Source $AppName -ErrorAction SilentlyContinue
+}
+
+function Write-Log {
+  param (
+    [string]$Message,
+    [ValidateSet('Information', 'Warning', 'Error')][string]$EventType = 'Information',
+    [int]$EventID = 1000
+  )
+  $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+  "$timestamp - $Message" | Tee-Object -FilePath $LogFile -Append
+
+  try {
+    Write-EventLog -LogName Application -Source $AppName -EntryType $EventType -EventId $EventID -Message $Message -ErrorAction SilentlyContinue
+  } catch {
+    # Fails silently if EventLog writing fails (rare)
+  }
+}
+
+# Install Office
+try {
+  $SetupExePath = Join-Path $PSScriptRoot "Setup.exe"
+  $ConfigXMLPath = Join-Path $PSScriptRoot $ConfigurationXMLFile
+
+  Write-Log "Starting Office installation using configuration file: $ConfigXMLPath"
+
+  $process = Start-Process $SetupExePath -ArgumentList "/configure `"$ConfigXMLPath`"" -Wait -PassThru
+  Write-Log "Office installation process exited with code: $($process.ExitCode)"
+
+  switch ($process.ExitCode) {
+    0 {
+      Write-Log "Office installation completed successfully." -EventType Information -EventID 1000
+      exit 0
+    }
+    17002 {
+      Write-Log "Office installation requires a reboot to complete. Exit code: 17002" -EventType Warning -EventID 2000
+      exit 0
+    }
+    30102 {
+      Write-Log "Office installation completed successfully, reboot required. Exit code: 30102" -EventType Warning -EventID 2000
+      exit 0
+    }
+    default {
+      Write-Log "ERROR: Office installation failed with exit code $($process.ExitCode)" -EventType Error -EventID 4000
+      exit $process.ExitCode
+    }
+  }
+} catch {
+  Write-Log "ERROR: Exception occurred during Office installation: $_" -EventType Error -EventID 4000
+  exit 1
+}
