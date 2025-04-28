@@ -6,8 +6,14 @@ param(
 $VerbosePreference = 'Continue'
 $ErrorActionPreference = 'Stop'
 
-# Define variables
-$AppName = [System.IO.Path]::GetFileNameWithoutExtension($PSCommandPath)
+# Correctly get script location
+$ScriptFullPath = $MyInvocation.MyCommand.Path
+$AppName = [System.IO.Path]::GetFileNameWithoutExtension($ScriptFullPath)
+
+# Set working directory to script folder
+Set-Location -Path (Split-Path -Parent $ScriptFullPath)
+
+# Define log folders
 $RootLogFolder = "C:\ProgramData\Microsoft\IntuneApps"
 $LogFolder = Join-Path $RootLogFolder $AppName
 
