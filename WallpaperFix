@@ -1,0 +1,38 @@
+# Get all user profiles from the registry
+$UserProfiles = Get-ChildItem 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList'
+
+foreach ($Profile in $UserProfiles) {
+    $SID = $Profile.PSChildName
+    $ProfilePath = (Get-ItemProperty -Path $Profile.PSPath).ProfileImagePath
+
+    # Skip system profiles
+    if ($ProfilePath -like "*System32*") {
+        continue
+    }
+
+    $UserHiveRoot = "HKU:\$SID"
+    $UserHivePath = "$ProfilePath\NTUSER.DAT"
+    $TempHiveName = "TempHive_$SID"
+
+    if (Test-Path $UserHivePath) {
+        if (Test-Path $UserHiveRoot) {
+            # Hive is already loaded (user is logged in)
+            try {
+                Set-WallpaperForUser -UserHive $UserHiveRoot -UserSID $SID
+            } catch {
+                Write-Warning "Failed to set wallpaper for logged-in user with SID $SID"
+            }
+        } else {
+            # Hive is not loaded (user not logged in) — load it temporarily
+            reg load "HKU\$TempHiveName" "$UserHivePath" | Out-Null
+
+            try {
+                Set-WallpaperForUser -UserHive "HKU:\$TempHiveName" -UserSID $SID
+            } catch {
+                Write-Warning "Failed to set wallpaper for offline user with SID $SID"
+            } finally {
+                reg unload "HKU\$TempHiveName" | Out-Null
+            }
+        }
+    }
+}
