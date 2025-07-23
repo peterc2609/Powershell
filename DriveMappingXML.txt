@@ -1,0 +1,105 @@
+[CmdletBinding()]
+Param()
+
+$scriptFolder = "C:\ProgramData\Microsoft\IntuneApps\DriveMapping"
+$scriptPath = "$scriptFolder\DriveMapping.ps1"
+
+if (-not (Test-Path $scriptFolder)) {
+    New-Item -Path $scriptFolder -ItemType Directory -Force | Out-Null
+}
+
+# Save the mapping script
+$driveMappingScript = @'
+[CmdletBinding()]
+Param()
+
+$log = "$env:TEMP\DriveMapping.log"
+$err = "$env:TEMP\DriveMappingErrors.txt"
+Start-Transcript -Path $log -Force
+
+$driveMappingJson = '[{"Path":"\\\\nn-dfs-01\\UserShared","DriveLetter":"P"},{"Path":"\\\\nn-dfs-01\\DeptShared","DriveLetter":"S"},{"Path":"\\\\nn-dfs-04\\charityshared","DriveLetter":"V"}]'
+$driveMappingConfig = $driveMappingJson | ConvertFrom-Json
+
+foreach ($drive in $driveMappingConfig) {
+    try {
+        net use "$($drive.DriveLetter):" /delete /yes 2>$null
+        cmd.exe /c "net use $($drive.DriveLetter): $($drive.Path) /persistent:yes"
+        Write-Output "Mapped $($drive.DriveLetter): to $($drive.Path)"
+    } catch {
+        "Failed to map $($drive.DriveLetter): - $($_.Exception.Message)" | Out-File $err -Append
+    }
+}
+
+Stop-Transcript
+'@
+
+$driveMappingScript | Out-File -FilePath $scriptPath -Force -Encoding UTF8
+
+# XML for task triggers (logon, startup, network profile change)
+$taskXml = @"
+<?xml version="1.0" encoding="UTF-16"?>
+<Task version="1.4" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
+  <RegistrationInfo>
+    <Description>Maps network drives at logon, startup, or network change</Description>
+  </RegistrationInfo>
+  <Triggers>
+    <LogonTrigger>
+      <Enabled>true</Enabled>
+    </LogonTrigger>
+    <BootTrigger>
+      <Enabled>true</Enabled>
+    </BootTrigger>
+    <EventTrigger>
+      <Enabled>true</Enabled>
+      <Subscription>
+        <![CDATA[
+        <QueryList>
+          <Query Id="0" Path="Microsoft-Windows-NetworkProfile/Operational">
+            <Select Path="Microsoft-Windows-NetworkProfile/Operational">
+              *[System[EventID=10000 or EventID=10002 or EventID=4004]]
+            </Select>
+          </Query>
+        </QueryList>
+        ]]>
+      </Subscription>
+    </EventTrigger>
+  </Triggers>
+  <Principals>
+    <Principal id="Author">
+      <GroupId>S-1-5-32-545</GroupId> <!-- Built-in Users group -->
+      <RunLevel>LeastPrivilege</RunLevel>
+    </Principal>
+  </Principals>
+  <Settings>
+    <MultipleInstancesPolicy>IgnoreNew</MultipleInstancesPolicy>
+    <DisallowStartIfOnBatteries>false</DisallowStartIfOnBatteries>
+    <StopIfGoingOnBatteries>false</StopIfGoingOnBatteries>
+    <AllowHardTerminate>false</AllowHardTerminate>
+    <StartWhenAvailable>true</StartWhenAvailable>
+    <RunOnlyIfNetworkAvailable>false</RunOnlyIfNetworkAvailable>
+    <IdleSettings>
+      <StopOnIdleEnd>false</StopOnIdleEnd>
+      <RestartOnIdle>false</RestartOnIdle>
+    </IdleSettings>
+    <AllowStartOnDemand>true</AllowStartOnDemand>
+    <Enabled>true</Enabled>
+    <Hidden>false</Hidden>
+    <RunOnlyIfIdle>false</RunOnlyIfIdle>
+    <WakeToRun>false</WakeToRun>
+    <ExecutionTimeLimit>PT0S</ExecutionTimeLimit>
+    <Priority>7</Priority>
+  </Settings>
+  <Actions Context="Author">
+    <Exec>
+      <Command>powershell.exe</Command>
+      <Arguments>-ExecutionPolicy Bypass -WindowStyle Hidden -File "$scriptPath"</Arguments>
+    </Exec>
+  </Actions>
+</Task>
+"@
+
+# Register the task
+$xmlPath = "$env:TEMP\DriveMappingTask.xml"
+$taskXml | Out-File -FilePath $xmlPath -Encoding UTF8
+Register-ScheduledTask -Xml (Get-Content -Path $xmlPath | Out-String) -TaskName "IntuneDriveMapping" -Force
+Start-ScheduledTask -TaskName "IntuneDriveMapping"
